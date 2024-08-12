@@ -1,0 +1,59 @@
+name: 'devicecloud.dev - Trigger Mobile App Test Run'
+author: 'devicecloud.dev'
+description: 'Uses devicecloud.dev.com to execute a mobile app UI test'
+inputs:
+  api-key:
+    description: 'devicecloud.dev Api Key - find this in your app settings in the devicecloud.dev dashboard'
+    required: true
+  app-file:
+    description: 'Path to the build artifact to upload to devicecloud.dev before running the test'
+    required: false
+  app-binary-id:
+    description: 'The app binary already uploaded to devicecloud.dev'
+    required: false
+  workspace:
+    description: 'Path to a folder that contains your test flows'
+    required: false
+  env:
+    description: 'Set of key=value entries to pass as an input to Maestro flows'
+    required: false
+  async:
+    description: 'Whether to run Upload in async fashion and not block until completed'
+    required: false
+  android-api-level:
+    description: 'Android API level to run your flow against'
+    required: false
+  ios-version:
+    description: 'iOS version to run your flow against'
+    required: false
+  include-tags:
+    description: 'List of tags that will remove flows that does not have the provided tags'
+    required: false
+  exclude-tags:
+    description: 'List of tags that will remove flows containing the provided tags'
+    required: false
+  name:
+    description: 'A custom name for your upload (useful for tagging commits etc)'
+    required: false
+  api-url:
+    description: 'The API URL to use for the devicecloud.dev service'
+    required: false
+  android-device:
+    description: 'Android device to run your flow against'
+    required: false
+  ios-device:
+    description: 'iOS device to run your flow against'
+    required: false
+  exclude-flows:
+    description: 'Subdirectories to ignore when building the flow file list'
+    required: false
+  google-play:
+    description: 'Run your flow against Google Play devices'
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'check'
+  color: 'blue'

@@ -1,0 +1,27 @@
+{
+  "name": "dcd-github-action",
+  "description": "devicecloud.dev - Trigger Mobile App Test Run",
+  "author": "devicecloud.dev",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "ncc build"
+  },
+  "dependencies": {
+    "@actions/core": "^1.5.0",
+    "@actions/github": "^5.0.0",
+    "@octokit/rest": "^18.0.0",
+    "form-data": "^4.0.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.8",
+    "@types/node-fetch": "^2.6.4",
+    "@vercel/ncc": "^0.36.1",
+    "typescript": "^5.1.6"
+  }
+}

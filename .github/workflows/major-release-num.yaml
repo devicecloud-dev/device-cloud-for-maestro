@@ -1,0 +1,31 @@
+name: Update major release tag
+run-name: Update major release tag for ${{ github.ref }}
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  movetag:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git Credentials
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Update tag to major version
+        run: |
+          VERSION=${{ github.ref_name }}
+          MAJOR=${VERSION%%.*}
+
+          echo "Updating tag ${MAJOR} (source: ${VERSION}) to ${GITHUB_SHA}"
+
+          git tag -f ${MAJOR}
+          git push origin ${MAJOR} --force
