@@ -1,6 +1,6 @@
 {
   "name": "dcd-github-action",
-  "description": "devicecloud.dev - Trigger Mobile App Test Run",
+  "description": "run maestro tests on devicecloud.dev",
   "author": "devicecloud.dev",
   "version": "1.0.0",
   "main": "src/index.ts",
