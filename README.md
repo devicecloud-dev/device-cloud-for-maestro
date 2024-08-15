@@ -1,239 +1,175 @@
-# devicecloud.dev - Trigger Mobile App Test Run
+# Device Cloud Action
 
-This GitHub Action leverages devicecloud.dev to trigger a mobile app UI test.
+This action is a swap in replacement for the [Maestro Cloud Action](https://github.com/mobile-dev-inc/action-maestro-cloud)
 
-## Installation
+It lets you run your flows on [devicecloud.dev](https://devicecloud.dev) to save money and access extra features.
 
-1. Navigate to the [GitHub Marketplace](https://github.com/marketplace/actions/dcd-trigger-mobile-app-test-run).
-2. On the action page, click `Use latest version` button.
-3. Follow the prompts from github to install the action.
+# Using the action
 
-## Configuration
-
-Here is an example of how to set up the devicecloud.dev GitHub Action in your workflow file:
+Add the following to your workflow. Note that you can use the `v1` tag if you want to keep using the latest version of the action, which will automatically resolve to all `v1.minor.patch` versions as they get published.
 
 ```yaml
-name: devicecloud.dev Mobile App Test Run
+- uses: devicecloud.dev/maestro-device-cloud@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: <path_to_your_app_file>
+```
+
+# Triggers
+
+Trigger this action on (1) pushes to your main branch and (2) pull requests opened against your main branch:
+
+```yaml
 on:
   push:
-    branches: [production, staging]
+    branches: [master]
+  pull_request:
+    branches: [master]
+```
+
+If you need to use the `pull_request_target` trigger to support repo forks, check out the HEAD of the pull request to ensure that you're running the analysis against the changed code:
+
+```yaml
+on:
+  push:
+    branches: [master]
+  pull_request_target:
+    branches: [master]
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  run-maestro-on-dcd:
+    name: Run Flows on devicecloud.dev
     steps:
-      - name: devicecloud.dev - Trigger Mobile App Test Run
-        uses: devicecloud-dev/action-trigger-test-run@v1
+      - uses: actions/checkout@v3
         with:
-          api-key: ${{ secrets.DCD_API_KEY }}
-          app-file: path/to/build.apk
-          workspace: path/to/workspace
-          env: '{"VAR_1":"Some variable", "VAR_2":"A different variable"}'
+          ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD
 ```
 
-In this example, this action will run whenever a push to the production or staging branch occurs.
-
-### Storing Secrets
-
-The `api-key` should be kept private. You can use GitHub secrets to protect it. To add a secret:
-
-1. Navigate to your GitHub repository and click on the `Settings` tab.
-2. Click on `Secrets` in the left sidebar.
-3. Click `New repository secret`.
-4. Enter `DCD_API_KEY` as the name for the secrets, and paste the corresponding key in the value field.
-
-## Inputs
-
-### `api-key`
-
-**Required** - devicecloud.dev Secret Key, find this in your devicecloud.dev dashboard.
-It follows the UUID schema, e.g. `85e67636-7652-45a8-94ac-e7cdd7e8f869`, however we recommend using Github Secrets for this parameter and provide as follows:
+# Android
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### `app-file`
+`app-file` should point to an x86 compatible APK file, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
 
-**Required if binary-id is not specified** - App binary to run your flows against.
+# iOS
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    app-file: /path/to/your_app.apk
+    app-file: <app_name>.app
 ```
 
-### `app-binary-id`
+`app-file` should point to an Apple silicon compatible Simulator .app build, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
 
-**Required if app-file is not specified** - The ID of the app binary previously uploaded to Maestro Cloud.
+# Custom workspace location
+
+By default, the action is looking for a `.maestro` folder with Maestro flows in the root directory of the project. If you would like to customize this behaviour, you can override it with a `workspace` argument:
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    app-binary-id: your-app-binary-id
+    app-file: app.zip
+    workspace: myFlows/
 ```
 
-### `workspace`
+# Custom name
 
-**Required** - The path to the flow file or folder containing your flows.
+A name will automatically be provided according to the following order:
+
+1. If it is a Pull Request, use Pull Request title as name
+2. If it is a normal push, use commit message as name
+3. If for some reason the commit message is not available, use the commit SHA as name
+
+If you want to override this behaviour and specify your own name, you can do so by setting the `name` argument:
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    workspace: /path/to/flows
+    app-file: app.zip
+    name: My Upload
 ```
 
-### `env`
+# Run in async mode
 
-**Required** - One or more environment variables to inject into your flows. The variables must be passed as stringified JSON in the form `{"VAR_1":"VAL_1","VAR_2":"VAL_2"}`
-
-```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
-  with:
-    api-key: ${{ secrets.DCD_API_KEY }}
-    env: '{"VAR_1":"Some variable", "VAR_2":"A different variable"}'
-```
-
-### `android-api-level`
-
-**Optional** - [Android only] Android API level to run your flow against. Options: `32`, `33`, `34`.
+If you don't want the action to wait until the Upload has been completed as is the default behaviour, set the `async` argument to `true`:
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    android-api-level: 33
-```
-
-### `android-device`
-
-**Optional** - [Android only] Android device to run your flow against. Options: `pixel-6`, `pixel-6a`, `pixel-6-pro`, `pixel-7`, `pixel-7-pro`, `generic-tablet`.
-
-```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
-  with:
-    api-key: ${{ secrets.DCD_API_KEY }}
-    android-device: pixel-6
-```
-
-### `async`
-
-**Optional** - Wait for the results of the run asynchronously.
-
-```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
-  with:
-    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.zip
     async: true
 ```
 
-### `exclude-flows`
+# Adding environment variables
 
-**Optional** - Subdirectories to ignore when building the flow file list.
+If you want to pass environment variables along with your upload, The variables must be passed as stringified JSON in the form `{"VAR_1":"VAL_1","VAR_2":"VAL_2"}`:
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    exclude-flows: 'test/exclude-directory'
+    app-file: app.zip
+    env: '{"VAR_1":"Some variable", "VAR_2":"A different variable"}'
 ```
 
-### `exclude-tags`
+# Using tags
 
-**Optional** - Flows which have these tags will be excluded from the run.
+You can use Maestro [Tags](https://maestro.mobile.dev/cli/tags) to filter which Flows to send to Maestro Cloud:
+
+You can either pass a single value, or comma-separated (`,`) values.
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    exclude-tags: 'tag1,tag2'
+    app-file: app.zip
+    include-tags: dev, pull-request
+    exclude-tags: excludeTag
 ```
 
-### `google-play`
+# Specifying Android API Level
 
-**Optional** - [Android only] Run your flow against Google Play devices.
+You can specify what Android API level to use when running in devicecloud.dev using the `android-api-level` parameter.
+
+The default API level is 33. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available Android emulator API levels.
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    google-play: true
+    app-file: app.apk
+    android-api-level: 32
 ```
 
-### `include-tags`
+# Specifying iOS version
 
-**Optional** - Only flows which have these tags will be included in the run.
+You can specify what **major** iOS Version to use when running in devicecloud.dev using the `ios-version` parameter.
 
-```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
-  with:
-    api-key: ${{ secrets.DCD_API_KEY }}
-    include-tags: 'tag3,tag4'
-```
-
-### `ios-device`
-
-**Optional** - [iOS only] iOS device to run your flow against. Options: `iphone-12`, `iphone-12-mini`, `iphone-12-pro-max`, `iphone-13`, `iphone-13-mini`, `iphone-13-pro-max`, `iphone-14`, `iphone-14-plus`, `iphone-14-pro`, `iphone-14-pro-max`, `iphone-15`, `iphone-15-plus`, `iphone-15-pro`,
+The default iOS version is 17. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available iOS simulator versions.
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    ios-device: iphone-14
-```
-
-### `ios-version`
-
-**Optional** - [iOS only] iOS version to run your flow against. Options: `15`, `16`, `17`.
-
-```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
-  with:
-    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.zip
     ios-version: 16
 ```
 
-### `name`
+# Using an already uploaded App
 
-**Optional** - A custom name for your upload (useful for tagging commits etc).
+You can use an already uploaded App binary in devicecloud.dev using the `app-binary-id` parameter.
 
 ```yaml
----
-- name: devicecloud.dev - Trigger Mobile App Test Run
-  uses: dcd-com/action-trigger-test-run@v1
+- uses: devicecloud.dev/maestro-device-cloud@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    name: 'My Custom Upload Name'
+    app-binary-id: <your-app-binary-id>
 ```

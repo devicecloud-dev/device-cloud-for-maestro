@@ -1,9 +1,9 @@
-name: 'devicecloud.dev - Trigger Mobile App Test Run'
+name: 'Device Cloud Action'
 author: 'devicecloud.dev'
-description: 'Uses devicecloud.dev.com to execute a mobile app UI test'
+description: 'Uses devicecloud.dev to execute Maestro mobile tests'
 inputs:
   api-key:
-    description: 'devicecloud.dev Api Key - find this in your app settings in the devicecloud.dev dashboard'
+    description: 'devicecloud.dev API Key - find this in your app settings in the devicecloud.dev dashboard'
     required: true
   app-file:
     description: 'Path to the build artifact to upload to devicecloud.dev before running the test'
