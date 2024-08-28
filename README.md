@@ -9,7 +9,7 @@ It lets you run your flows on [devicecloud.dev](https://devicecloud.dev) to save
 Add the following to your workflow. Note that you can use the `v1` tag if you want to keep using the latest version of the action, which will automatically resolve to all `v1.minor.patch` versions as they get published.
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: <path_to_your_app_file>
@@ -22,9 +22,9 @@ Trigger this action on (1) pushes to your main branch and (2) pull requests open
 ```yaml
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 ```
 
 If you need to use the `pull_request_target` trigger to support repo forks, check out the HEAD of the pull request to ensure that you're running the analysis against the changed code:
@@ -32,12 +32,13 @@ If you need to use the `pull_request_target` trigger to support repo forks, chec
 ```yaml
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request_target:
-    branches: [master]
+    branches: [main]
 jobs:
   run-maestro-on-dcd:
     name: Run Flows on devicecloud.dev
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -47,7 +48,7 @@ jobs:
 # Android
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app/build/outputs/apk/debug/app-debug.apk
@@ -58,7 +59,7 @@ jobs:
 # iOS
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: <app_name>.app
@@ -71,7 +72,7 @@ jobs:
 By default, the action is looking for a `.maestro` folder with Maestro flows in the root directory of the project. If you would like to customize this behaviour, you can override it with a `workspace` argument:
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -89,7 +90,7 @@ A name will automatically be provided according to the following order:
 If you want to override this behaviour and specify your own name, you can do so by setting the `name` argument:
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -101,7 +102,7 @@ If you want to override this behaviour and specify your own name, you can do so 
 If you don't want the action to wait until the Upload has been completed as is the default behaviour, set the `async` argument to `true`:
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -113,7 +114,7 @@ If you don't want the action to wait until the Upload has been completed as is t
 If you want to pass environment variables along with your upload, The variables must be passed as stringified JSON in the form `{"VAR_1":"VAL_1","VAR_2":"VAL_2"}`:
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -127,7 +128,7 @@ You can use Maestro [Tags](https://maestro.mobile.dev/cli/tags) to filter which 
 You can either pass a single value, or comma-separated (`,`) values.
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -142,7 +143,7 @@ You can specify what Android API level to use when running in devicecloud.dev us
 The default API level is 33. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available Android emulator API levels.
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -156,7 +157,7 @@ You can specify what **major** iOS Version to use when running in devicecloud.de
 The default iOS version is 17. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available iOS simulator versions.
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -168,7 +169,7 @@ The default iOS version is 17. [Refer to docs](https://docs.devicecloud.dev/gett
 You can use an already uploaded App binary in devicecloud.dev using the `app-binary-id` parameter.
 
 ```yaml
-- uses: devicecloud.dev/maestro-device-cloud@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-binary-id: <your-app-binary-id>
