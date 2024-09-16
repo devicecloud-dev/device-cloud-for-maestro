@@ -111,14 +111,16 @@ If you don't want the action to wait until the Upload has been completed as is t
 
 # Adding environment variables
 
-If you want to pass environment variables along with your upload, The variables must be passed as stringified JSON in the form `{"VAR_1":"VAL_1","VAR_2":"VAL_2"}`:
+If you want to pass environment variables along with your upload, add a multiline `env` argument:
 
 ```yaml
 - uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
-    env: '{"VAR_1":"Some variable", "VAR_2":"A different variable"}'
+    env: |
+      USERNAME=<username>
+      PASSWORD=<password>
 ```
 
 # Using tags

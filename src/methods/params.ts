@@ -1,3 +1,4 @@
+import * as github from '@actions/github';
 import * as core from '@actions/core';
 
 export type Params = {
@@ -5,12 +6,12 @@ export type Params = {
   apiUrl: string;
   appFilePath: string;
   workspaceFolder: string | null;
-  env?: { [key: string]: string };
+  env?: string;
   async?: boolean;
   androidApiLevel?: number;
   iOSVersion?: number;
-  includeTags: string[];
-  excludeTags: string[];
+  includeTags: string[] | null;
+  excludeTags: string[] | null;
   appBinaryId: string;
   androidDevice: string | null;
   excludeFlows: string;
@@ -27,8 +28,9 @@ function getIOSVersion(iosVersion?: string): number | undefined {
   return iosVersion ? +iosVersion : undefined;
 }
 
-function parseTags(tags?: string): string[] {
-  if (tags === undefined || tags === '') return [];
+function parseTags(tags?: string): string[] | null {
+  if (tags === undefined || tags === '' || tags === null || tags.length === 0)
+    return null;
 
   if (tags.includes(',')) {
     const arrayTags = tags.split(',').map((it) => it.trim());
@@ -86,13 +88,30 @@ function parseIOSDevice(device?: string): string | null {
 
   throw new Error(`Invalid ios device: ${device}`);
 }
+function getPullRequestTitle(): string | undefined {
+  const pullRequestTitle = github.context.payload.pull_request?.title;
+  if (pullRequestTitle === undefined) return undefined;
+  return `${pullRequestTitle}`;
+}
+function getInferredName(): string {
+  const pullRequestTitle = getPullRequestTitle();
+  if (pullRequestTitle) return pullRequestTitle;
+
+  if (github.context.eventName === 'push') {
+    const pushPayload = github.context.payload;
+    const commitMessage = pushPayload.head_commit?.message;
+    if (commitMessage) return commitMessage;
+  }
+
+  return github.context.sha;
+}
 
 export async function getParameters(): Promise<Params> {
   const apiUrl =
     core.getInput('api-url', { required: false }) ||
     'https://api.devicecloud.dev';
   const apiKey = core.getInput('api-key', { required: true });
-  const name = core.getInput('name', { required: false });
+  const name = core.getInput('name', { required: false }) || getInferredName();
   const workspaceFolder = core.getInput('workspace', { required: false });
   const async = core.getInput('async', { required: false }) === 'true';
   const androidApiLevelString = core.getInput('android-api-level', {
@@ -123,22 +142,9 @@ export async function getParameters(): Promise<Params> {
     throw new Error('Either app-file or app-binary-id must be used');
   }
 
-  var env: { [key: string]: string } = {};
-  env = core
+  const env = core
     .getMultilineInput('env', { required: false })
-    .map((it) => {
-      const parts = it.split('=');
-
-      if (parts.length < 2) {
-        throw new Error(`Invalid env parameter: ${it}`);
-      }
-
-      return { key: parts[0], value: parts.slice(1).join('=') };
-    })
-    .reduce((map, entry) => {
-      map[entry.key] = entry.value;
-      return map;
-    }, env);
+    .join(' --env ');
 
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
   const iOSVersion = getIOSVersion(iOSVersionString);

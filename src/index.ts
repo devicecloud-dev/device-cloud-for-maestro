@@ -46,7 +46,7 @@ const run = async (): Promise<void> => {
       return params[key] ? `${acc} --${key} ${params[key]}` : acc;
     }, '');
 
-    execSync(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString}`, {
+    execSync(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
       stdio: 'inherit',
     });
 
