@@ -14,6 +14,7 @@ inputs:
   workspace:
     description: 'Path to a folder that contains your test flows'
     required: false
+    default: './.maestro/'
   env:
     description: 'Set of key=value entries to pass as an input to Maestro flows'
     required: false
