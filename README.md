@@ -1,6 +1,6 @@
 # Device Cloud Action
 
-This action is a swap in replacement for the [Maestro Cloud Action](https://github.com/mobile-dev-inc/action-maestro-cloud)
+This action is a swap in replacement for the [Maestro Cloud Action](https://github.com/mobile-dev-inc/action-maestro-cloud). The readme is identical where practical to make the switch as straightforward as possible.
 
 It lets you run your flows on [devicecloud.dev](https://devicecloud.dev) to save money and access extra features.
 
@@ -62,10 +62,10 @@ jobs:
 - uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    app-file: <app_name>.app
+    app-file: <app_name>.zip
 ```
 
-`app-file` should point to an Apple silicon compatible Simulator .app build, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
+`app-file` should point to an Apple silicon compatible Simulator .app build which has then been zipped, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
 
 # Custom workspace location
 
@@ -81,11 +81,7 @@ By default, the action is looking for a `.maestro` folder with Maestro flows in 
 
 # Custom name
 
-A name will automatically be provided according to the following order:
-
-1. If it is a Pull Request, use Pull Request title as name
-2. If it is a normal push, use commit message as name
-3. If for some reason the commit message is not available, use the commit SHA as name
+The run name will automatically be populated with the commit message.
 
 If you want to override this behaviour and specify your own name, you can do so by setting the `name` argument:
 
@@ -125,7 +121,7 @@ If you want to pass environment variables along with your upload, add a multilin
 
 # Using tags
 
-You can use Maestro [Tags](https://maestro.mobile.dev/cli/tags) to filter which Flows to send to Maestro Cloud:
+You can use Maestro [Tags](https://maestro.mobile.dev/cli/tags) to filter which Flows to send to device cloud:
 
 You can either pass a single value, or comma-separated (`,`) values.
 
@@ -142,7 +138,7 @@ You can either pass a single value, or comma-separated (`,`) values.
 
 You can specify what Android API level to use when running in devicecloud.dev using the `android-api-level` parameter.
 
-The default API level is 33. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available Android emulator API levels.
+The default API level is 34. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available Android emulator API levels.
 
 ```yaml
 - uses: devicecloud-dev/device-cloud-for-maestro@v1
