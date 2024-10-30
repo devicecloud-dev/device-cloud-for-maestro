@@ -43,7 +43,7 @@ const run = async (): Promise<void> => {
     };
 
     const paramsString = Object.keys(params).reduce((acc, key) => {
-      return params[key] ? `${acc} --${key} ${params[key]}` : acc;
+      return params[key] ? `${acc} --${key} "${params[key]}"` : acc;
     }, '');
 
     execSync(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {

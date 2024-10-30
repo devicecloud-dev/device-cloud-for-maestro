@@ -32555,7 +32555,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             name,
         };
         const paramsString = Object.keys(params).reduce((acc, key) => {
-            return params[key] ? `${acc} --${key} ${params[key]}` : acc;
+            return params[key] ? `${acc} --${key} "${params[key]}"` : acc;
         }, '');
         (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
             stdio: 'inherit',
