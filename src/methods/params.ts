@@ -18,6 +18,12 @@ export type Params = {
   googlePlay: boolean;
   iosDevice: string | null;
   name?: string;
+  additionalAppBinaryIds: string[] | null;
+  additionalAppFiles: string[] | null;
+  deviceLocale?: string;
+  downloadArtifacts?: 'ALL' | 'FAILED';
+  maestroVersion?: string;
+  orientation?: 0 | 90 | 180 | 270;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -106,6 +112,29 @@ function getInferredName(): string {
   return github.context.sha;
 }
 
+function parseOrientation(
+  orientation?: string
+): 0 | 90 | 180 | 270 | undefined {
+  if (!orientation) return undefined;
+  const value = parseInt(orientation);
+  if ([0, 90, 180, 270].includes(value)) {
+    return value as 0 | 90 | 180 | 270;
+  }
+  throw new Error(
+    `Invalid orientation: ${orientation}. Must be 0, 90, 180, or 270`
+  );
+}
+
+function parseDownloadArtifacts(value?: string): 'ALL' | 'FAILED' | undefined {
+  if (!value) return undefined;
+  if (value !== 'ALL' && value !== 'FAILED') {
+    throw new Error(
+      `Invalid download-artifacts value: ${value}. Must be ALL or FAILED`
+    );
+  }
+  return value;
+}
+
 export async function getParameters(): Promise<Params> {
   const apiUrl =
     core.getInput('api-url', { required: false }) ||
@@ -138,6 +167,21 @@ export async function getParameters(): Promise<Params> {
   const googlePlay =
     core.getInput('google-play', { required: false }) === 'true';
 
+  const additionalAppBinaryIds = parseTags(
+    core.getInput('additional-app-binary-ids', { required: false })
+  );
+  const additionalAppFiles = parseTags(
+    core.getInput('additional-app-files', { required: false })
+  );
+  const deviceLocale = core.getInput('device-locale', { required: false });
+  const downloadArtifacts = parseDownloadArtifacts(
+    core.getInput('download-artifacts', { required: false })
+  );
+  const maestroVersion = core.getInput('maestro-version', { required: false });
+  const orientation = parseOrientation(
+    core.getInput('orientation', { required: false })
+  );
+
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
   }
@@ -166,5 +210,11 @@ export async function getParameters(): Promise<Params> {
     iosDevice,
     excludeFlows,
     googlePlay,
+    additionalAppBinaryIds,
+    additionalAppFiles,
+    deviceLocale,
+    downloadArtifacts,
+    maestroVersion,
+    orientation,
   };
 }

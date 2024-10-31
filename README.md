@@ -172,3 +172,70 @@ You can use an already uploaded App binary in devicecloud.dev using the `app-bin
     api-key: ${{ secrets.DCD_API_KEY }}
     app-binary-id: <your-app-binary-id>
 ```
+
+# Specifying device orientation
+
+You can specify the orientation of Android devices in degrees using the `orientation` parameter:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    orientation: 90 # Options: 0|90|180|270
+```
+
+# Setting device locale
+
+You can set the device locale using ISO codes:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    device-locale: de_DE # Format: ISO-639-1_ISO-3166-1
+```
+
+# Additional app binaries
+
+You can include additional app binaries either by file or by previously uploaded binary ID:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    additional-app-files: |
+      second-app.apk
+      third-app.apk
+    additional-app-binary-ids: |
+      binary-id-1
+      binary-id-2
+```
+
+# Downloading artifacts
+
+You can download logs, screenshots and videos for test results (BETA feature):
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    download-artifacts: FAILED # Options: ALL|FAILED
+```
+
+Note: There is a $0.01 egress fee per result when using this feature.
+
+# Specifying Maestro version
+
+You can specify which version of Maestro to use (ALPHA feature):
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    maestro-version: 1.39.0
+```
