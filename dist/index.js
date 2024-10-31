@@ -32535,24 +32535,30 @@ const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { apiKey, apiUrl, appFilePath, workspaceFolder, env, async, androidApiLevel, iOSVersion, includeTags, excludeTags, appBinaryId, androidDevice, iosDevice, excludeFlows, googlePlay, name, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, workspaceFolder, } = yield (0, params_1.getParameters)();
         const params = {
-            'app-file': appFilePath,
-            flows: workspaceFolder,
-            'api-key': apiKey,
-            'app-binary-id': appBinaryId,
-            'include-tags': includeTags,
-            'exclude-tags': excludeTags,
-            env,
-            'api-url': apiUrl,
-            async,
+            'additional-app-binary-ids': additionalAppBinaryIds,
+            'additional-app-files': additionalAppFiles,
             'android-api-level': androidApiLevel,
-            'ios-version': iOSVersion,
             'android-device': androidDevice,
-            'ios-device': iosDevice,
+            'api-key': apiKey,
+            'api-url': apiUrl,
+            'app-binary-id': appBinaryId,
+            'app-file': appFilePath,
+            async,
+            'device-locale': deviceLocale,
+            'download-artifacts': downloadArtifacts,
+            env,
             'exclude-flows': excludeFlows,
+            'exclude-tags': excludeTags,
+            flows: workspaceFolder,
             'google-play': googlePlay,
+            'include-tags': includeTags,
+            'ios-device': iosDevice,
+            'ios-version': iOSVersion,
+            'maestro-version': maestroVersion,
             name,
+            orientation,
         };
         const paramsString = Object.keys(params).reduce((acc, key) => {
             return params[key] ? `${acc} --${key} "${params[key]}"` : acc;
@@ -32693,6 +32699,23 @@ function getInferredName() {
     }
     return github.context.sha;
 }
+function parseOrientation(orientation) {
+    if (!orientation)
+        return undefined;
+    const value = parseInt(orientation);
+    if ([0, 90, 180, 270].includes(value)) {
+        return value;
+    }
+    throw new Error(`Invalid orientation: ${orientation}. Must be 0, 90, 180, or 270`);
+}
+function parseDownloadArtifacts(value) {
+    if (!value)
+        return undefined;
+    if (value !== 'ALL' && value !== 'FAILED') {
+        throw new Error(`Invalid download-artifacts value: ${value}. Must be ALL or FAILED`);
+    }
+    return value;
+}
 function getParameters() {
     return __awaiter(this, void 0, void 0, function* () {
         const apiUrl = core.getInput('api-url', { required: false }) ||
@@ -32713,6 +32736,12 @@ function getParameters() {
         const iosDevice = parseIOSDevice(core.getInput('ios-device', { required: false }));
         const excludeFlows = core.getInput('exclude-flows', { required: false });
         const googlePlay = core.getInput('google-play', { required: false }) === 'true';
+        const additionalAppBinaryIds = parseTags(core.getInput('additional-app-binary-ids', { required: false }));
+        const additionalAppFiles = parseTags(core.getInput('additional-app-files', { required: false }));
+        const deviceLocale = core.getInput('device-locale', { required: false });
+        const downloadArtifacts = parseDownloadArtifacts(core.getInput('download-artifacts', { required: false }));
+        const maestroVersion = core.getInput('maestro-version', { required: false });
+        const orientation = parseOrientation(core.getInput('orientation', { required: false }));
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
@@ -32738,6 +32767,12 @@ function getParameters() {
             iosDevice,
             excludeFlows,
             googlePlay,
+            additionalAppBinaryIds,
+            additionalAppFiles,
+            deviceLocale,
+            downloadArtifacts,
+            maestroVersion,
+            orientation,
         };
     });
 }

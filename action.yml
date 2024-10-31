@@ -2,55 +2,73 @@ name: 'Device Cloud Action'
 author: 'devicecloud.dev'
 description: 'Uses devicecloud.dev to execute Maestro mobile tests'
 inputs:
+  additional-app-binary-ids:
+    description: 'The ID of the additional app binary(s) previously uploaded to devicecloud.dev to install before execution'
+    required: false
+  additional-app-files:
+    description: 'Additional app binary(s) to install before execution'
+    required: false
+  android-api-level:
+    description: 'Android API level to run your flow against'
+    required: false
+  android-device:
+    description: 'Android device to run your flow against'
+    required: false
   api-key:
     description: 'devicecloud.dev API Key - find this in your app settings in the devicecloud.dev dashboard'
     required: true
-  app-file:
-    description: 'Path to the build artifact to upload to devicecloud.dev before running the test'
+  api-url:
+    description: 'The API URL to use for the devicecloud.dev service'
     required: false
   app-binary-id:
     description: 'The app binary already uploaded to devicecloud.dev'
+    required: false
+  app-file:
+    description: 'Path to the build artifact to upload to devicecloud.dev before running the test'
+    required: false
+  async:
+    description: 'Whether to run Upload in async fashion and not block until completed'
+    required: false
+  device-locale:
+    description: 'Locale that will be set to a device, ISO-639-1 code and uppercase ISO-3166-1 code e.g. "de_DE" for Germany'
+    required: false
+  download-artifacts:
+    description: 'BETA (API may change) - download a zip containing the logs, screenshots and videos for each result in this run. Options: ALL|FAILED'
+    required: false
+  env:
+    description: 'Set of key=value entries to pass as an input to Maestro flows'
+    required: false
+  exclude-flows:
+    description: 'Subdirectories to ignore when building the flow file list'
+    required: false
+  exclude-tags:
+    description: 'List of tags that will remove flows containing the provided tags'
+    required: false
+  google-play:
+    description: 'Run your flow against Google Play devices'
+    required: false
+  include-tags:
+    description: 'List of tags that will remove flows that does not have the provided tags'
+    required: false
+  ios-device:
+    description: 'iOS device to run your flow against'
+    required: false
+  ios-version:
+    description: 'iOS version to run your flow against'
+    required: false
+  maestro-version:
+    description: 'ALPHA pre-release - Maestro version to run your flow against'
+    required: false
+  name:
+    description: 'A custom name for your upload (useful for tagging commits etc)'
+    required: false
+  orientation:
+    description: 'Android only - The orientation of the device to run your flow against in degrees (0|90|180|270)'
     required: false
   workspace:
     description: 'Path to a folder that contains your test flows'
     required: false
     default: './.maestro/'
-  env:
-    description: 'Set of key=value entries to pass as an input to Maestro flows'
-    required: false
-  async:
-    description: 'Whether to run Upload in async fashion and not block until completed'
-    required: false
-  android-api-level:
-    description: 'Android API level to run your flow against'
-    required: false
-  ios-version:
-    description: 'iOS version to run your flow against'
-    required: false
-  include-tags:
-    description: 'List of tags that will remove flows that does not have the provided tags'
-    required: false
-  exclude-tags:
-    description: 'List of tags that will remove flows containing the provided tags'
-    required: false
-  name:
-    description: 'A custom name for your upload (useful for tagging commits etc)'
-    required: false
-  api-url:
-    description: 'The API URL to use for the devicecloud.dev service'
-    required: false
-  android-device:
-    description: 'Android device to run your flow against'
-    required: false
-  ios-device:
-    description: 'iOS device to run your flow against'
-    required: false
-  exclude-flows:
-    description: 'Subdirectories to ignore when building the flow file list'
-    required: false
-  google-play:
-    description: 'Run your flow against Google Play devices'
-    required: false
 
 runs:
   using: 'node20'
