@@ -6,7 +6,7 @@ export type Params = {
   apiUrl: string;
   appFilePath: string;
   workspaceFolder: string | null;
-  env?: string;
+  env?: string[];
   async?: boolean;
   androidApiLevel?: number;
   iOSVersion?: number;
@@ -186,9 +186,7 @@ export async function getParameters(): Promise<Params> {
     throw new Error('Either app-file or app-binary-id must be used');
   }
 
-  const env = core
-    .getMultilineInput('env', { required: false })
-    .join(' --env ');
+  const env = core.getMultilineInput('env', { required: false });
 
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
   const iOSVersion = getIOSVersion(iOSVersionString);

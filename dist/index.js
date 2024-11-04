@@ -32548,7 +32548,6 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             async,
             'device-locale': deviceLocale,
             'download-artifacts': downloadArtifacts,
-            env,
             'exclude-flows': excludeFlows,
             'exclude-tags': excludeTags,
             flows: workspaceFolder,
@@ -32560,9 +32559,24 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             name,
             orientation,
         };
-        const paramsString = Object.keys(params).reduce((acc, key) => {
-            return params[key] ? `${acc} --${key} "${params[key]}"` : acc;
+        let paramsString = Object.keys(params).reduce((acc, key) => {
+            if (!params[key])
+                return acc;
+            const needsQuotes = typeof params[key] === 'string' &&
+                '"' !== params[key][0] &&
+                params[key].includes(' ');
+            const value = needsQuotes ? `"${params[key]}"` : params[key];
+            return `${acc} --${key} ${value}`;
         }, '');
+        if (env && env.length > 0) {
+            env.forEach((e) => {
+                let [key, value] = e.split('=');
+                const needsQuotes = '"' !== value[0] && value.includes(' ');
+                if (needsQuotes)
+                    value = `"${value}"`;
+                paramsString += ` --env ${key}=${value}`;
+            });
+        }
         (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
             stdio: 'inherit',
         });
@@ -32745,9 +32759,7 @@ function getParameters() {
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
-        const env = core
-            .getMultilineInput('env', { required: false })
-            .join(' --env ');
+        const env = core.getMultilineInput('env', { required: false });
         const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
         const iOSVersion = getIOSVersion(iOSVersionString);
         return {

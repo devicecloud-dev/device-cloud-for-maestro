@@ -41,7 +41,6 @@ const run = async (): Promise<void> => {
       async,
       'device-locale': deviceLocale,
       'download-artifacts': downloadArtifacts,
-      env,
       'exclude-flows': excludeFlows,
       'exclude-tags': excludeTags,
       flows: workspaceFolder,
@@ -54,9 +53,24 @@ const run = async (): Promise<void> => {
       orientation,
     };
 
-    const paramsString = Object.keys(params).reduce((acc, key) => {
-      return params[key] ? `${acc} --${key} "${params[key]}"` : acc;
+    let paramsString = Object.keys(params).reduce((acc, key) => {
+      if (!params[key]) return acc;
+      const needsQuotes =
+        typeof params[key] === 'string' &&
+        '"' !== params[key][0] &&
+        params[key].includes(' ');
+      const value = needsQuotes ? `"${params[key]}"` : params[key];
+      return `${acc} --${key} ${value}`;
     }, '');
+
+    if (env && env.length > 0) {
+      env.forEach((e) => {
+        let [key, value] = e.split('=');
+        const needsQuotes = '"' !== value[0] && value.includes(' ');
+        if (needsQuotes) value = `"${value}"`;
+        paramsString += ` --env ${key}=${value}`;
+      });
+    }
 
     execSync(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
       stdio: 'inherit',
