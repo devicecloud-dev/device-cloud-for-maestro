@@ -239,3 +239,33 @@ You can specify which version of Maestro to use (ALPHA feature):
     app-file: app.apk
     maestro-version: 1.39.0
 ```
+
+# Specifying Device Models
+
+You can target specific device models for your tests using the `android-device` or `ios-device` parameters.
+
+See a full list of available device models [here](https://docs.devicecloud.dev/getting-started/devices-configuration).
+
+## Android Device
+
+Specify an Android device model to run your tests on:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    android-device: pixel-6
+```
+
+## iOS Device
+
+Specify an iOS device model to run your tests on:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.zip
+    ios-device: iphone-14
+```
