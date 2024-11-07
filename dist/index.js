@@ -32535,7 +32535,7 @@ const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, workspaceFolder, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, retry, workspaceFolder, } = yield (0, params_1.getParameters)();
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -32558,6 +32558,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'maestro-version': maestroVersion,
             name,
             orientation,
+            retry,
         };
         let paramsString = Object.keys(params).reduce((acc, key) => {
             if (!params[key])
@@ -32762,6 +32763,7 @@ function getParameters() {
         const env = core.getMultilineInput('env', { required: false });
         const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
         const iOSVersion = getIOSVersion(iOSVersionString);
+        const retry = parseInt(core.getInput('retry', { required: false })) || undefined;
         return {
             apiUrl,
             apiKey,
@@ -32785,6 +32787,7 @@ function getParameters() {
             downloadArtifacts,
             maestroVersion,
             orientation,
+            retry,
         };
     });
 }
