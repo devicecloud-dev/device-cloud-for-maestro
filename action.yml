@@ -63,12 +63,15 @@ inputs:
     description: 'A custom name for your upload (useful for tagging commits etc)'
     required: false
   orientation:
-    description: 'Android only - The orientation of the device to run your flow against in degrees (0|90|180|270)'
+    description: 'Android only - The orientation of the device to run your flow against in degrees (90|180|270)'
     required: false
   workspace:
     description: 'Path to a folder that contains your test flows'
     required: false
     default: './.maestro/'
+  retry:
+    description: 'Number of times to retry the run if it fails (same as pressing retry in the UI, this will deduct credits from your account)'
+    required: false
 
 runs:
   using: 'node20'

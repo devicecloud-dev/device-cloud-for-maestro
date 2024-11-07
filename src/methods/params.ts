@@ -24,6 +24,7 @@ export type Params = {
   downloadArtifacts?: 'ALL' | 'FAILED';
   maestroVersion?: string;
   orientation?: 0 | 90 | 180 | 270;
+  retry?: number;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -191,6 +192,9 @@ export async function getParameters(): Promise<Params> {
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
   const iOSVersion = getIOSVersion(iOSVersionString);
 
+  const retry =
+    parseInt(core.getInput('retry', { required: false })) || undefined;
+
   return {
     apiUrl,
     apiKey,
@@ -214,5 +218,6 @@ export async function getParameters(): Promise<Params> {
     downloadArtifacts,
     maestroVersion,
     orientation,
+    retry,
   };
 }
