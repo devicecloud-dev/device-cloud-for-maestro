@@ -26,6 +26,7 @@ const run = async (): Promise<void> => {
       maestroVersion,
       name,
       orientation,
+      retry,
       workspaceFolder,
     } = await getParameters();
 
@@ -51,6 +52,7 @@ const run = async (): Promise<void> => {
       'maestro-version': maestroVersion,
       name,
       orientation,
+      retry,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

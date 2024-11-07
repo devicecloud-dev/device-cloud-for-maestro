@@ -269,3 +269,15 @@ Specify an iOS device model to run your tests on:
     app-file: app.zip
     ios-device: iphone-14
 ```
+
+# Retry parameter
+
+The `retry` parameter allows you to specify the number of times to retry the run if it fails. This is the same as pressing retry in the UI, and it will deduct credits from your account. Max is 3 retries.
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    retry: 3
+```
