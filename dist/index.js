@@ -32533,6 +32533,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
+const escapeShellValue = (value) => {
+    // Escape special characters that could cause shell interpretation issues
+    return value.replace(/(["\\'$`!])/g, '\\$1');
+};
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, retry, workspaceFolder, } = yield (0, params_1.getParameters)();
@@ -32563,16 +32567,21 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         let paramsString = Object.keys(params).reduce((acc, key) => {
             if (!params[key])
                 return acc;
-            const needsQuotes = typeof params[key] === 'string' &&
-                '"' !== params[key][0] &&
-                params[key].includes(' ');
-            const value = needsQuotes ? `"${params[key]}"` : params[key];
-            return `${acc} --${key} ${value}`;
+            const value = typeof params[key] === 'string'
+                ? escapeShellValue(params[key])
+                : params[key];
+            const needsQuotes = typeof value === 'string' &&
+                !value.startsWith('"') &&
+                (value.includes(' ') || value.includes('\\'));
+            const finalValue = needsQuotes ? `"${value}"` : value;
+            return `${acc} --${key} ${finalValue}`;
         }, '');
         if (env && env.length > 0) {
             env.forEach((e) => {
                 let [key, value] = e.split('=');
-                const needsQuotes = '"' !== value[0] && value.includes(' ');
+                value = escapeShellValue(value);
+                const needsQuotes = !value.startsWith('"') &&
+                    (value.includes(' ') || value.includes('\\'));
                 if (needsQuotes)
                     value = `"${value}"`;
                 paramsString += ` --env ${key}=${value}`;

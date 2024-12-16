@@ -2,6 +2,11 @@ import { setFailed } from '@actions/core';
 import { getParameters } from './methods/params';
 import { execSync } from 'child_process';
 
+const escapeShellValue = (value: string): string => {
+  // Escape special characters that could cause shell interpretation issues
+  return value.replace(/(["\\'$`!])/g, '\\$1');
+};
+
 const run = async (): Promise<void> => {
   try {
     const {
@@ -57,18 +62,25 @@ const run = async (): Promise<void> => {
 
     let paramsString = Object.keys(params).reduce((acc, key) => {
       if (!params[key]) return acc;
+      const value =
+        typeof params[key] === 'string'
+          ? escapeShellValue(params[key])
+          : params[key];
       const needsQuotes =
-        typeof params[key] === 'string' &&
-        '"' !== params[key][0] &&
-        params[key].includes(' ');
-      const value = needsQuotes ? `"${params[key]}"` : params[key];
-      return `${acc} --${key} ${value}`;
+        typeof value === 'string' &&
+        !value.startsWith('"') &&
+        (value.includes(' ') || value.includes('\\'));
+      const finalValue = needsQuotes ? `"${value}"` : value;
+      return `${acc} --${key} ${finalValue}`;
     }, '');
 
     if (env && env.length > 0) {
       env.forEach((e) => {
         let [key, value] = e.split('=');
-        const needsQuotes = '"' !== value[0] && value.includes(' ');
+        value = escapeShellValue(value);
+        const needsQuotes =
+          !value.startsWith('"') &&
+          (value.includes(' ') || value.includes('\\'));
         if (needsQuotes) value = `"${value}"`;
         paramsString += ` --env ${key}=${value}`;
       });
