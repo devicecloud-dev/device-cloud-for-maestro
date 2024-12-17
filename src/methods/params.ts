@@ -53,53 +53,21 @@ function parseTags(tags?: string): string[] | null {
 function parseAndroidDevice(device?: string): string | null {
   if (device === undefined || device === '') return null;
 
-  if (
-    [
-      'pixel-6',
-      'pixel-6a',
-      'pixel-6-pro',
-      'pixel-7',
-      'pixel-7-pro',
-      'generic-tablet',
-    ].includes(device)
-  ) {
-    return device;
-  }
-
-  throw new Error(`Invalid android device: ${device}`);
+  return device;
 }
+
 function parseIOSDevice(device?: string): string | null {
   if (device === undefined || device === '') return null;
 
-  if (
-    [
-      'iphone-12',
-      'iphone-12-mini',
-      'iphone-12-pro-max',
-      'iphone-13',
-      'iphone-13-mini',
-      'iphone-13-pro-max',
-      'iphone-14',
-      'iphone-14-plus',
-      'iphone-14-pro',
-      'iphone-14-pro-max',
-      'iphone-15',
-      'iphone-15-plus',
-      'iphone-15-pro',
-      'iphone-15-pro-max',
-      'ipad-pro-6th-gen',
-    ].includes(device)
-  ) {
-    return device;
-  }
-
-  throw new Error(`Invalid ios device: ${device}`);
+  return device;
 }
+
 function getPullRequestTitle(): string | undefined {
   const pullRequestTitle = github.context.payload.pull_request?.title;
   if (pullRequestTitle === undefined) return undefined;
   return `${pullRequestTitle}`;
 }
+
 function getInferredName(): string {
   const pullRequestTitle = getPullRequestTitle();
   if (pullRequestTitle) return pullRequestTitle;
