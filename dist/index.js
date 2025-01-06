@@ -32535,7 +32535,7 @@ const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
 const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
-    return value.replace(/(["\\'$`!])/g, '\\$1');
+    return value.replace(/(["\\'$`!\s])/g, '\\$1');
 };
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -32570,21 +32570,17 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             const value = typeof params[key] === 'string'
                 ? escapeShellValue(params[key])
                 : params[key];
-            const needsQuotes = typeof value === 'string' &&
-                !value.startsWith('"') &&
-                (value.includes(' ') || value.includes('\\'));
-            const finalValue = needsQuotes ? `"${value}"` : value;
-            return `${acc} --${key} ${finalValue}`;
+            return `${acc} --${key} ${value}`;
         }, '');
         if (env && env.length > 0) {
             env.forEach((e) => {
-                let [key, value] = e.split('=');
-                value = escapeShellValue(value);
-                const needsQuotes = !value.startsWith('"') &&
-                    (value.includes(' ') || value.includes('\\'));
-                if (needsQuotes)
-                    value = `"${value}"`;
-                paramsString += ` --env ${key}=${value}`;
+                let [key, ...rest] = e.split('=');
+                let value = rest.join('=');
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    // remove quotes so they dont get escaped
+                    value = value.slice(1, -1);
+                }
+                paramsString += ` --env ${key}=${escapeShellValue(value)}`;
             });
         }
         (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
