@@ -25,14 +25,17 @@ const run = async (): Promise<void> => {
       excludeFlows,
       excludeTags,
       googlePlay,
+      ignoreShaCheck,
       includeTags,
       iOSVersion,
       iosDevice,
       maestroVersion,
       name,
       orientation,
+      report,
       retry,
       workspaceFolder,
+      x86Arch,
     } = await getParameters();
 
     const params: Record<string, any> = {
@@ -51,13 +54,16 @@ const run = async (): Promise<void> => {
       'exclude-tags': excludeTags,
       flows: workspaceFolder,
       'google-play': googlePlay,
+      'ignore-sha-check': ignoreShaCheck,
       'include-tags': includeTags,
       'ios-device': iosDevice,
       'ios-version': iOSVersion,
       'maestro-version': maestroVersion,
       name,
       orientation,
+      report,
       retry,
+      'x86-arch': x86Arch,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

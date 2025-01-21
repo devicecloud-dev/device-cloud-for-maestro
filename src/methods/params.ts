@@ -25,6 +25,9 @@ export type Params = {
   maestroVersion?: string;
   orientation?: 0 | 90 | 180 | 270;
   retry?: number;
+  ignoreShaCheck?: boolean;
+  report?: 'junit' | 'html';
+  x86Arch?: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -151,6 +154,19 @@ export async function getParameters(): Promise<Params> {
     core.getInput('orientation', { required: false })
   );
 
+  const ignoreShaCheck =
+    core.getInput('ignore-sha-check', { required: false }) === 'true';
+
+  const report = core.getInput('report', { required: false }) as
+    | 'junit'
+    | 'html'
+    | undefined;
+  if (report && report !== 'junit' && report !== 'html') {
+    throw new Error('Report format must be either "junit" or "html"');
+  }
+
+  const x86Arch = core.getInput('x86-arch', { required: false }) === 'true';
+
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
   }
@@ -187,5 +203,8 @@ export async function getParameters(): Promise<Params> {
     maestroVersion,
     orientation,
     retry,
+    ignoreShaCheck,
+    report,
+    x86Arch,
   };
 }
