@@ -2,75 +2,91 @@ name: 'Device Cloud Action'
 author: 'devicecloud.dev'
 description: 'Uses devicecloud.dev to execute Maestro mobile tests'
 inputs:
-  additional-app-binary-ids:
-    description: 'The ID of the additional app binary(s) previously uploaded to devicecloud.dev to install before execution'
-    required: false
-  additional-app-files:
-    description: 'Additional app binary(s) to install before execution'
-    required: false
-  android-api-level:
-    description: 'Android API level to run your flow against'
-    required: false
-  android-device:
-    description: 'Android device to run your flow against'
-    required: false
   api-key:
-    description: 'devicecloud.dev API Key - find this in your app settings in the devicecloud.dev dashboard'
+    description: 'API key for devicecloud.dev (find this in the console UI). You can also set the DEVICE_CLOUD_API_KEY environment variable.'
     required: true
   api-url:
-    description: 'The API URL to use for the devicecloud.dev service'
+    description: 'API URL for devicecloud.dev'
+    required: false
+    default: 'https://api.devicecloud.dev'
+  app-file:
+    description: 'App binary to run your flows against'
     required: false
   app-binary-id:
-    description: 'The app binary already uploaded to devicecloud.dev'
+    description: 'The ID of the app binary previously uploaded to devicecloud.dev'
     required: false
-  app-file:
-    description: 'Path to the build artifact to upload to devicecloud.dev before running the test'
+  additional-app-files:
+    description: '[default: ] Additional app binary(s) to install before execution'
+    required: false
+  additional-app-binary-ids:
+    description: '[default: ] The ID of the additional app binary(s) previously uploaded to devicecloud.dev to install before execution'
+    required: false
+  android-api-level:
+    description: '[Android only] Android API level to run your flow against <options: 29|30|31|32|33|34|35>'
+    required: false
+  android-device:
+    description: '[Android only] Android device to run your flow against <options: pixel-6|pixel-6-pro|pixel-7|pixel-7-pro|generic-tablet>'
     required: false
   async:
-    description: 'Whether to run Upload in async fashion and not block until completed'
+    description: 'Immediately return (exit code 0) from the command without waiting for the results of the run (useful for saving CI minutes)'
     required: false
   device-locale:
     description: 'Locale that will be set to a device, ISO-639-1 code and uppercase ISO-3166-1 code e.g. "de_DE" for Germany'
     required: false
   download-artifacts:
-    description: 'BETA (API may change) - download a zip containing the logs, screenshots and videos for each result in this run. Options: ALL|FAILED'
+    description: 'Download a zip containing the logs, screenshots and videos for each result in this run. You will debited a $0.01 egress fee for each result. Use FAILED for failures only or ALL for every result. <options: ALL|FAILED>'
     required: false
   env:
-    description: 'Set of key=value entries to pass as an input to Maestro flows'
+    description: 'One or more environment variables to inject into your flows'
     required: false
   exclude-flows:
-    description: 'Subdirectories to ignore when building the flow file list'
+    description: '[default: ] Sub directories to ignore when building the flow file list'
     required: false
   exclude-tags:
-    description: 'List of tags that will remove flows containing the provided tags'
+    description: '[default: ] Flows which have these tags will be excluded from the run'
+    required: false
+  flows:
+    description: 'The path to the flow file or folder containing your flows'
     required: false
   google-play:
-    description: 'Run your flow against Google Play devices'
+    description: '[Android only] Run your flow against Google Play devices'
+    required: false
+  ignore-sha-check:
+    description: 'Ignore the sha hash check and upload the binary regardless of whether it already exists (not recommended)'
     required: false
   include-tags:
-    description: 'List of tags that will remove flows that does not have the provided tags'
+    description: '[default: ] Only flows which have these tags will be included in the run'
     required: false
   ios-device:
-    description: 'iOS device to run your flow against'
+    description: '[iOS only] iOS device to run your flow against <options: iphone-13|iphone-14|iphone-14-plus|iphone-14-pro|iphone-14-pro-max|iphone-15|iphone-15-plus|iphone-15-pro|iphone-15-pro-max|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen>'
     required: false
   ios-version:
-    description: 'iOS version to run your flow against'
+    description: '[iOS only] iOS version to run your flow against <options: 16|17|18>'
     required: false
   maestro-version:
-    description: 'ALPHA pre-release - Maestro version to run your flow against'
+    description: 'Maestro version to run your flow against'
     required: false
+    default: '1.39.5'
   name:
     description: 'A custom name for your upload (useful for tagging commits etc)'
     required: false
   orientation:
-    description: 'Android only - The orientation of the device to run your flow against in degrees (90|180|270)'
+    description: '[Android only] The orientation of the device to run your flow against in degrees <options: 0|90|180|270>'
     required: false
-  workspace:
-    description: 'Path to a folder that contains your test flows'
+  quiet:
+    description: 'Quieter console output that wont provide progress updates'
     required: false
-    default: './.maestro/'
+  report:
+    description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html>'
+    required: false
   retry:
     description: 'Number of times to retry the run if it fails (same as pressing retry in the UI, this will deduct credits from your account)'
+    required: false
+  workspace:
+    description: 'The path to the workspace folder containing your flows'
+    required: false
+  x86-arch:
+    description: '[iOS only, experimental] Run your flow against x86 architecture simulator instead of arm64'
     required: false
 
 runs:
