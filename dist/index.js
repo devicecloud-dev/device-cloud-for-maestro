@@ -33275,7 +33275,7 @@ const escapeShellValue = (value) => {
 };
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, retry, workspaceFolder, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, } = yield (0, params_1.getParameters)();
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -33292,13 +33292,16 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'exclude-tags': excludeTags,
             flows: workspaceFolder,
             'google-play': googlePlay,
+            'ignore-sha-check': ignoreShaCheck,
             'include-tags': includeTags,
             'ios-device': iosDevice,
             'ios-version': iOSVersion,
             'maestro-version': maestroVersion,
             name,
             orientation,
+            report,
             retry,
+            'x86-arch': x86Arch,
         };
         let paramsString = Object.keys(params).reduce((acc, key) => {
             if (!params[key])
@@ -33469,6 +33472,12 @@ function getParameters() {
         const downloadArtifacts = parseDownloadArtifacts(core.getInput('download-artifacts', { required: false }));
         const maestroVersion = core.getInput('maestro-version', { required: false });
         const orientation = parseOrientation(core.getInput('orientation', { required: false }));
+        const ignoreShaCheck = core.getInput('ignore-sha-check', { required: false }) === 'true';
+        const report = core.getInput('report', { required: false });
+        if (report && report !== 'junit' && report !== 'html') {
+            throw new Error('Report format must be either "junit" or "html"');
+        }
+        const x86Arch = core.getInput('x86-arch', { required: false }) === 'true';
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
@@ -33500,6 +33509,9 @@ function getParameters() {
             maestroVersion,
             orientation,
             retry,
+            ignoreShaCheck,
+            report,
+            x86Arch,
         };
     });
 }
