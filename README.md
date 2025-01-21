@@ -281,3 +281,106 @@ The `retry` parameter allows you to specify the number of times to retry the run
     app-file: app.apk
     retry: 3
 ```
+
+# Report Format
+
+You can generate test reports in specific formats using the `report` parameter:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    report: junit # Options: junit|html
+```
+
+# Ignore SHA Check
+
+You can bypass the binary hash check using the `ignore-sha-check` parameter (not recommended):
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    ignore-sha-check: true
+```
+
+
+# Google Play Devices
+
+For Android tests, you can run your flows against Google Play devices:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    google-play: true
+```
+
+# x86 Architecture (iOS)
+
+For iOS tests, you can run your flows against x86 architecture simulators instead of arm64 (experimental):
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.zip
+    x86-arch: true
+```
+
+
+# All Available Options
+
+Here's a complete example showing all available options:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    # Required
+    api-key: ${{ secrets.DCD_API_KEY }}
+    
+    # App Configuration
+    app-file: app.apk  # or app-binary-id: <id>
+    additional-app-files: |
+      second-app.apk
+      third-app.apk
+    additional-app-binary-ids: |
+      binary-id-1
+      binary-id-2
+    
+    # Device Configuration
+    android-device: pixel-6  # pixel-6|pixel-6-pro|pixel-7|pixel-7-pro|generic-tablet
+    android-api-level: 34   # 29-35
+    ios-device: iphone-14   # iphone-13 through iphone-16-pro-max, ipad-pro-6th-gen
+    ios-version: 17        # 16|17|18
+    device-locale: en_US   # ISO-639-1_ISO-3166-1
+    orientation: 0         # 0|90|180|270 (Android only)
+    google-play: false     # Use Google Play devices (Android)
+    x86-arch: false       # Use x86 architecture (iOS)
+    
+    # Flow Configuration
+    workspace: myFlows/
+    exclude-flows: |
+      tests/experimental
+    include-tags: smoke,critical
+    exclude-tags: wip
+    
+    # Test Configuration
+    maestro-version: 1.39.5
+    env: |
+      KEY1=value1
+      KEY2=value2
+    name: Custom Run Name
+    retry: 3
+    report: junit         # junit|html
+    
+    # Execution Options
+    async: false
+    quiet: false
+    ignore-sha-check: false
+    download-artifacts: FAILED  # ALL|FAILED
+    api-url: https://api.devicecloud.dev
+```
