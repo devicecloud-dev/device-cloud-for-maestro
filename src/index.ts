@@ -1,10 +1,23 @@
-import { setFailed } from '@actions/core';
+import { setFailed, setOutput } from '@actions/core';
 import { getParameters } from './methods/params';
 import { execSync } from 'child_process';
 
 const escapeShellValue = (value: string): string => {
   // Escape special characters that could cause shell interpretation issues
   return value.replace(/(["\\'$`!\s])/g, '\\$1');
+};
+
+const getTestStatus = async (uploadId: string): Promise<any> => {
+  try {
+    const statusOutput = execSync(
+      `npx --yes @devicecloud.dev/dcd status --json ${uploadId}`,
+      { encoding: 'utf-8' }
+    );
+    return JSON.parse(statusOutput);
+  } catch (error) {
+    console.warn('Failed to get test status:', error);
+    return null;
+  }
 };
 
 const run = async (): Promise<void> => {
@@ -87,11 +100,49 @@ const run = async (): Promise<void> => {
       });
     }
 
-    execSync(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
-      stdio: 'inherit',
-    });
+    // Execute the test command and capture the upload ID
+    const testOutput = execSync(
+      `npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`,
+      { encoding: 'utf-8' }
+    );
 
-    console.info('Successfully completed test run.');
+    // Extract upload ID from the console URL in the output
+    const urlMatch = testOutput.match(
+      /https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/
+    );
+    const uploadId = urlMatch ? urlMatch[1] : '';
+
+    if (!uploadId) {
+      throw new Error('Failed to get upload ID from console URL');
+    }
+
+    // Get the test status and results
+    const result = await getTestStatus(uploadId);
+
+    if (result) {
+      // Set outputs based on the status results
+      setOutput('DEVICE_CLOUD_CONSOLE_URL', result.consoleUrl || '');
+      setOutput('DEVICE_CLOUD_APP_BINARY_ID', result.appBinaryId || '');
+      setOutput('DEVICE_CLOUD_UPLOAD_STATUS', result.status || 'PENDING');
+
+      // Format flow results to match expected structure
+      const flowResults = (result.flows || []).map((flow: any) => ({
+        name: flow.name,
+        status: flow.status,
+        errors: flow.errors || [],
+      }));
+      setOutput('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults));
+
+      if (result.status === 'SUCCESS') {
+        console.info('Successfully completed test run.');
+      } else if (result.status === 'ERROR') {
+        setFailed('Test run failed. Check flow results for details.');
+      }
+    } else {
+      setOutput('DEVICE_CLOUD_UPLOAD_STATUS', 'ERROR');
+      setOutput('DEVICE_CLOUD_FLOW_RESULTS', '[]');
+      throw new Error('Failed to get test status');
+    }
   } catch (error) {
     if (typeof error === 'string') {
       setFailed(error);
