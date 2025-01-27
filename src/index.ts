@@ -20,13 +20,18 @@ interface StatusResponse {
 }
 
 const getTestStatus = async (
-  uploadId: string
+  uploadId: string,
+  apiKey: string,
+  apiUrl?: string
 ): Promise<StatusResponse | null> => {
   try {
-    const statusOutput = execSync(
-      `npx --yes @devicecloud.dev/dcd status --json ${uploadId}`,
-      { encoding: 'utf-8' }
-    );
+    let command = `npx --yes @devicecloud.dev/dcd status --json --upload-id ${uploadId} --api-key ${escapeShellValue(
+      apiKey
+    )}`;
+    if (apiUrl) {
+      command += ` --api-url ${escapeShellValue(apiUrl)}`;
+    }
+    const statusOutput = execSync(command, { encoding: 'utf-8' });
     return JSON.parse(statusOutput);
   } catch (error) {
     console.warn('Failed to get test status:', error);
@@ -115,23 +120,36 @@ const run = async (): Promise<void> => {
     }
 
     // Execute the test command and capture the upload ID
-    const testOutput = execSync(
-      `npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`,
-      { encoding: 'utf-8' }
-    );
+    let uploadId: string | null = null;
 
-    // Extract upload ID from the console URL in the output
-    const urlMatch = testOutput.match(
-      /https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/
-    );
-    const uploadId = urlMatch ? urlMatch[1] : '';
+    let testOutput;
+    try {
+      testOutput = execSync(
+        `npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`,
+        { encoding: 'utf-8' }
+      );
+    } catch (e: any) {
+      testOutput = e.output[1].toString();
+      const exitCode = e.status || 1;
+      if (exitCode === 1) {
+        throw new Error(
+          'DeviceCloud CLI failed to run - check your parameters or contact support'
+        );
+      }
+    } finally {
+      console.log('test output', testOutput);
+      uploadId =
+        testOutput?.match(
+          /https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/
+        )?.[1] || null;
+    }
 
     if (!uploadId) {
       throw new Error('Failed to get upload ID from console URL');
     }
 
     // Get the test status and results
-    const result = await getTestStatus(uploadId);
+    const result = await getTestStatus(uploadId, apiKey, apiUrl);
 
     if (result) {
       // Set outputs based on the status results
@@ -144,7 +162,10 @@ const run = async (): Promise<void> => {
         name: test.name,
         status: test.status,
       }));
-      setOutput('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults));
+      setOutput(
+        'DEVICE_CLOUD_FLOW_RESULTS',
+        JSON.stringify(flowResults, null, 2)
+      );
 
       if (result.status === 'PASSED') {
         console.info('Successfully completed test run.');

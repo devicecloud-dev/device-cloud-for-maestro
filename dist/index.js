@@ -32574,9 +32574,13 @@ const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
     return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
 };
-const getTestStatus = (uploadId) => __awaiter(void 0, void 0, void 0, function* () {
+const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const statusOutput = (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd status --json ${uploadId}`, { encoding: 'utf-8' });
+        let command = `npx --yes @devicecloud.dev/dcd status --json --upload-id ${uploadId} --api-key ${escapeShellValue(apiKey)}`;
+        if (apiUrl) {
+            command += ` --api-url ${escapeShellValue(apiUrl)}`;
+        }
+        const statusOutput = (0, child_process_1.execSync)(command, { encoding: 'utf-8' });
         return JSON.parse(statusOutput);
     }
     catch (error) {
@@ -32585,6 +32589,7 @@ const getTestStatus = (uploadId) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, } = yield (0, params_1.getParameters)();
         const params = {
@@ -32634,15 +32639,28 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             });
         }
         // Execute the test command and capture the upload ID
-        const testOutput = (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`, { encoding: 'utf-8' });
-        // Extract upload ID from the console URL in the output
-        const urlMatch = testOutput.match(/https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/);
-        const uploadId = urlMatch ? urlMatch[1] : '';
+        let uploadId = null;
+        let testOutput;
+        try {
+            testOutput = (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`, { encoding: 'utf-8' });
+        }
+        catch (e) {
+            testOutput = e.output[1].toString();
+            const exitCode = e.status || 1;
+            if (exitCode === 1) {
+                throw new Error('DeviceCloud CLI failed to run - check your parameters or contact support');
+            }
+        }
+        finally {
+            console.log('test output', testOutput);
+            uploadId =
+                ((_a = testOutput === null || testOutput === void 0 ? void 0 : testOutput.match(/https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || null;
+        }
         if (!uploadId) {
             throw new Error('Failed to get upload ID from console URL');
         }
         // Get the test status and results
-        const result = yield getTestStatus(uploadId);
+        const result = yield getTestStatus(uploadId, apiKey, apiUrl);
         if (result) {
             // Set outputs based on the status results
             (0, core_1.setOutput)('DEVICE_CLOUD_CONSOLE_URL', result.consoleUrl || '');
