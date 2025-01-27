@@ -137,7 +137,6 @@ const run = async (): Promise<void> => {
         );
       }
     } finally {
-      console.log('test output', testOutput);
       uploadId =
         testOutput?.match(
           /https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/
