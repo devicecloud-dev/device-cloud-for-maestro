@@ -4,7 +4,7 @@ import { execSync } from 'child_process';
 
 const escapeShellValue = (value: string): string => {
   // Escape special characters that could cause shell interpretation issues
-  return value.replace(/(["\\'$`!\s])/g, '\\$1');
+  return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
 };
 
 interface TestResult {

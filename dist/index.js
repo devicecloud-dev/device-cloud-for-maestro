@@ -32572,7 +32572,7 @@ const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
 const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
-    return value.replace(/(["\\'$`!\s])/g, '\\$1');
+    return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
 };
 const getTestStatus = (uploadId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
