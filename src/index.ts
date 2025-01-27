@@ -7,7 +7,21 @@ const escapeShellValue = (value: string): string => {
   return value.replace(/(["\\'$`!\s])/g, '\\$1');
 };
 
-const getTestStatus = async (uploadId: string): Promise<any> => {
+interface TestResult {
+  name: string;
+  status: 'PASSED' | 'FAILED' | 'CANCELLED' | 'PENDING' | 'RUNNING';
+}
+
+interface StatusResponse {
+  status: 'PASSED' | 'FAILED' | 'CANCELLED' | 'PENDING' | 'RUNNING';
+  tests: TestResult[];
+  consoleUrl?: string;
+  appBinaryId?: string;
+}
+
+const getTestStatus = async (
+  uploadId: string
+): Promise<StatusResponse | null> => {
   try {
     const statusOutput = execSync(
       `npx --yes @devicecloud.dev/dcd status --json ${uploadId}`,
@@ -126,16 +140,15 @@ const run = async (): Promise<void> => {
       setOutput('DEVICE_CLOUD_UPLOAD_STATUS', result.status || 'PENDING');
 
       // Format flow results to match expected structure
-      const flowResults = (result.flows || []).map((flow: any) => ({
-        name: flow.name,
-        status: flow.status,
-        errors: flow.errors || [],
+      const flowResults = (result.tests || []).map((test: TestResult) => ({
+        name: test.name,
+        status: test.status,
       }));
       setOutput('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults));
 
-      if (result.status === 'SUCCESS') {
+      if (result.status === 'PASSED') {
         console.info('Successfully completed test run.');
-      } else if (result.status === 'ERROR') {
+      } else if (result.status === 'FAILED') {
         setFailed('Test run failed. Check flow results for details.');
       }
     } else {
