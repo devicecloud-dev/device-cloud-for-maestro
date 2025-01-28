@@ -306,7 +306,6 @@ You can bypass the binary hash check using the `ignore-sha-check` parameter (not
     ignore-sha-check: true
 ```
 
-
 # Google Play Devices
 
 For Android tests, you can run your flows against Google Play devices:
@@ -331,6 +330,51 @@ For iOS tests, you can run your flows against x86 architecture simulators instea
     x86-arch: true
 ```
 
+# Using Action Outputs
+
+The action provides several outputs that you can use in subsequent steps of your workflow. Here's how to use them:
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: devicecloud-dev/device-cloud-for-maestro@v1
+        id: devicecloud  # Important: Add an ID to reference the step
+        with:
+          api-key: ${{ secrets.DCD_API_KEY }}
+          app-file: app.apk
+
+      # Example: Post test results to a Slack channel
+      - name: Post Test Results
+        if: always()  # Run even if tests fail
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: 'test-results'
+          slack-message: |
+            Test Run Status: ${{ steps.devicecloud.outputs.DEVICE_CLOUD_UPLOAD_STATUS }}
+            View Results: ${{ steps.devicecloud.outputs.DEVICE_CLOUD_CONSOLE_URL }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      # Example: Save test results as artifacts
+      - name: Save Test Results
+        if: always()
+        run: |
+          echo '${{ steps.devicecloud.outputs.DEVICE_CLOUD_FLOW_RESULTS }}' > test-results.json
+
+      # Example: Use app binary ID in subsequent steps
+      - name: Use App Binary ID
+        if: success()
+        run: |
+          echo "App Binary ID: ${{ steps.devicecloud.outputs.DEVICE_CLOUD_APP_BINARY_ID }}"
+```
+
+Available outputs:
+- `DEVICE_CLOUD_CONSOLE_URL`: URL to view the test results in the Device Cloud console
+- `DEVICE_CLOUD_FLOW_RESULTS`: JSON array containing results for each flow, including name and status
+- `DEVICE_CLOUD_UPLOAD_STATUS`: Status of the test run (PENDING, RUNNING, PASSED, FAILED, CANCELLED)
+- `DEVICE_CLOUD_APP_BINARY_ID`: ID of the uploaded app binary in Device Cloud
 
 # All Available Options
 

@@ -88,6 +88,16 @@ inputs:
     description: '[iOS only, experimental] Run your flow against x86 architecture simulator instead of arm64'
     required: false
 
+outputs:
+  DEVICE_CLOUD_CONSOLE_URL:
+    description: 'URL to view the test results in the Device Cloud console'
+  DEVICE_CLOUD_FLOW_RESULTS:
+    description: 'JSON array containing results for each flow, including name, status, and any errors'
+  DEVICE_CLOUD_UPLOAD_STATUS:
+    description: 'Status of the test run (PENDING, RUNNING, PASSED, FAILED, CANCELLED)'
+  DEVICE_CLOUD_APP_BINARY_ID:
+    description: 'ID of the uploaded app binary in Device Cloud'
+
 runs:
   using: 'node20'
   main: 'dist/index.js'

@@ -32574,7 +32574,22 @@ const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
     return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
 };
+const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let command = `npx --yes @devicecloud.dev/dcd status --json --upload-id ${uploadId} --api-key ${escapeShellValue(apiKey)}`;
+        if (apiUrl) {
+            command += ` --api-url ${escapeShellValue(apiUrl)}`;
+        }
+        const statusOutput = (0, child_process_1.execSync)(command, { encoding: 'utf-8' });
+        return JSON.parse(statusOutput);
+    }
+    catch (error) {
+        console.warn('Failed to get test status:', error);
+        return null;
+    }
+});
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, } = yield (0, params_1.getParameters)();
         const params = {
@@ -32623,10 +32638,52 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                 paramsString += ` --env ${key}=${escapeShellValue(value)}`;
             });
         }
-        (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud  ${paramsString} --quiet`, {
-            stdio: 'inherit',
-        });
-        console.info('Successfully completed test run.');
+        // Execute the test command and capture the upload ID
+        let uploadId = null;
+        let testOutput;
+        try {
+            testOutput = (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`, { encoding: 'utf-8' });
+        }
+        catch (e) {
+            testOutput = e.output[1].toString();
+            const exitCode = e.status || 1;
+            if (exitCode === 1) {
+                throw new Error('DeviceCloud CLI failed to run - check your parameters or contact support');
+            }
+        }
+        finally {
+            console.log('test output', testOutput);
+            uploadId =
+                ((_a = testOutput === null || testOutput === void 0 ? void 0 : testOutput.match(/https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || null;
+        }
+        if (!uploadId) {
+            throw new Error('Failed to get upload ID from console URL');
+        }
+        // Get the test status and results
+        const result = yield getTestStatus(uploadId, apiKey, apiUrl);
+        if (result) {
+            // Set outputs based on the status results
+            (0, core_1.setOutput)('DEVICE_CLOUD_CONSOLE_URL', result.consoleUrl || '');
+            (0, core_1.setOutput)('DEVICE_CLOUD_APP_BINARY_ID', result.appBinaryId || '');
+            (0, core_1.setOutput)('DEVICE_CLOUD_UPLOAD_STATUS', result.status || 'PENDING');
+            // Format flow results to match expected structure
+            const flowResults = (result.tests || []).map((test) => ({
+                name: test.name,
+                status: test.status,
+            }));
+            (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults));
+            if (result.status === 'PASSED') {
+                console.info('Successfully completed test run.');
+            }
+            else if (result.status === 'FAILED') {
+                (0, core_1.setFailed)('Test run failed. Check flow results for details.');
+            }
+        }
+        else {
+            (0, core_1.setOutput)('DEVICE_CLOUD_UPLOAD_STATUS', 'ERROR');
+            (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', '[]');
+            throw new Error('Failed to get test status');
+        }
     }
     catch (error) {
         if (typeof error === 'string') {
