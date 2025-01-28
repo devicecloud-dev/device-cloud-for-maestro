@@ -32652,7 +32652,6 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
         finally {
-            console.log('test output', testOutput);
             uploadId =
                 ((_a = testOutput === null || testOutput === void 0 ? void 0 : testOutput.match(/https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || null;
         }
@@ -32671,7 +32670,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                 name: test.name,
                 status: test.status,
             }));
-            (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults));
+            (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults, null, 2));
             if (result.status === 'PASSED') {
                 console.info('Successfully completed test run.');
             }
