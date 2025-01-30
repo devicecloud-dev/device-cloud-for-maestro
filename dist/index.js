@@ -32642,7 +32642,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         let uploadId = null;
         let testOutput;
         try {
-            testOutput = (0, child_process_1.execSync)(`npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`, { encoding: 'utf-8' });
+            testOutput = (0, child_process_1.execSync)(`npx --yes  --no-cache @devicecloud.dev/dcd cloud ${paramsString} --quiet`, { encoding: 'utf-8' });
         }
         catch (e) {
             testOutput = e.output[1].toString();
