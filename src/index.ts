@@ -125,7 +125,7 @@ const run = async (): Promise<void> => {
     let testOutput;
     try {
       testOutput = execSync(
-        `npx --yes @devicecloud.dev/dcd cloud ${paramsString} --quiet`,
+        `npx --yes  --no-cache @devicecloud.dev/dcd cloud ${paramsString} --quiet`,
         { encoding: 'utf-8' }
       );
     } catch (e: any) {
