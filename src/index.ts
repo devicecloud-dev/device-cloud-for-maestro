@@ -1,6 +1,8 @@
 import { setFailed, setOutput } from '@actions/core';
 import { getParameters } from './methods/params';
-import { execSync } from 'child_process';
+import { spawn } from 'child_process';
+
+const dcdVersionString = '@devicecloud.dev/dcd@>=3.3.6';
 
 const escapeShellValue = (value: string): string => {
   // Escape special characters that could cause shell interpretation issues
@@ -19,20 +21,56 @@ interface StatusResponse {
   appBinaryId?: string;
 }
 
+const executeCommand = (
+  command: string,
+  log: boolean = true
+): Promise<{ output: string; exitCode: number }> => {
+  return new Promise((resolve, reject) => {
+    const [cmd, ...args] = command.split(' ');
+    let output = '';
+
+    const process = spawn(cmd, args, { shell: true });
+
+    process.stdout.on('data', (data) => {
+      const chunk = data.toString();
+      output += chunk;
+      if (log) {
+        console.info(chunk);
+      }
+    });
+
+    process.stderr.on('data', (data) => {
+      const chunk = data.toString();
+      output += chunk;
+      if (log) {
+        console.error(chunk);
+      }
+    });
+
+    process.on('close', (code) => {
+      resolve({ output, exitCode: code ?? 0 });
+    });
+
+    process.on('error', (err) => {
+      reject(err);
+    });
+  });
+};
+
 const getTestStatus = async (
   uploadId: string,
   apiKey: string,
   apiUrl?: string
 ): Promise<StatusResponse | null> => {
   try {
-    let command = `npx --yes @devicecloud.dev/dcd status --json --upload-id ${uploadId} --api-key ${escapeShellValue(
+    let command = `npx --yes "${dcdVersionString}" status --json --upload-id ${uploadId} --api-key ${escapeShellValue(
       apiKey
     )}`;
     if (apiUrl) {
       command += ` --api-url ${escapeShellValue(apiUrl)}`;
     }
-    const statusOutput = execSync(command, { encoding: 'utf-8' });
-    return JSON.parse(statusOutput);
+    const { output } = await executeCommand(command, false);
+    return JSON.parse(output);
   } catch (error) {
     console.warn('Failed to get test status:', error);
     return null;
@@ -121,16 +159,14 @@ const run = async (): Promise<void> => {
 
     // Execute the test command and capture the upload ID
     let uploadId: string | null = null;
+    let testOutput = '';
 
-    let testOutput;
     try {
-      testOutput = execSync(
-        `npx --yes  --no-cache @devicecloud.dev/dcd cloud ${paramsString} --quiet`,
-        { encoding: 'utf-8' }
+      const { output, exitCode } = await executeCommand(
+        `npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`
       );
-    } catch (e: any) {
-      testOutput = e.output[1].toString();
-      const exitCode = e.status || 1;
+      testOutput = output;
+
       if (exitCode === 1) {
         throw new Error(
           'DeviceCloud CLI failed to run - check your parameters or contact support'
@@ -169,7 +205,9 @@ const run = async (): Promise<void> => {
       if (result.status === 'PASSED') {
         console.info('Successfully completed test run.');
       } else if (result.status === 'FAILED') {
-        setFailed('Test run failed. Check flow results for details.');
+        setFailed(
+          `Test run failed. Check flow results for details: ${result.consoleUrl}`
+        );
       }
     } else {
       setOutput('DEVICE_CLOUD_UPLOAD_STATUS', 'ERROR');

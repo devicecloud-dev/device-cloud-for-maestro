@@ -32570,18 +32570,46 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
+const dcdVersionString = '@devicecloud.dev/dcd@>=3.3.6';
 const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
     return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
 };
+const executeCommand = (command, log = true) => {
+    return new Promise((resolve, reject) => {
+        const [cmd, ...args] = command.split(' ');
+        let output = '';
+        const process = (0, child_process_1.spawn)(cmd, args, { shell: true });
+        process.stdout.on('data', (data) => {
+            const chunk = data.toString();
+            output += chunk;
+            if (log) {
+                console.info(chunk);
+            }
+        });
+        process.stderr.on('data', (data) => {
+            const chunk = data.toString();
+            output += chunk;
+            if (log) {
+                console.error(chunk);
+            }
+        });
+        process.on('close', (code) => {
+            resolve({ output, exitCode: code !== null && code !== void 0 ? code : 0 });
+        });
+        process.on('error', (err) => {
+            reject(err);
+        });
+    });
+};
 const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let command = `npx --yes @devicecloud.dev/dcd status --json --upload-id ${uploadId} --api-key ${escapeShellValue(apiKey)}`;
+        let command = `npx --yes "${dcdVersionString}" status --json --upload-id ${uploadId} --api-key ${escapeShellValue(apiKey)}`;
         if (apiUrl) {
             command += ` --api-url ${escapeShellValue(apiUrl)}`;
         }
-        const statusOutput = (0, child_process_1.execSync)(command, { encoding: 'utf-8' });
-        return JSON.parse(statusOutput);
+        const { output } = yield executeCommand(command, false);
+        return JSON.parse(output);
     }
     catch (error) {
         console.warn('Failed to get test status:', error);
@@ -32640,13 +32668,10 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Execute the test command and capture the upload ID
         let uploadId = null;
-        let testOutput;
+        let testOutput = '';
         try {
-            testOutput = (0, child_process_1.execSync)(`npx --yes  --no-cache @devicecloud.dev/dcd cloud ${paramsString} --quiet`, { encoding: 'utf-8' });
-        }
-        catch (e) {
-            testOutput = e.output[1].toString();
-            const exitCode = e.status || 1;
+            const { output, exitCode } = yield executeCommand(`npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`);
+            testOutput = output;
             if (exitCode === 1) {
                 throw new Error('DeviceCloud CLI failed to run - check your parameters or contact support');
             }
@@ -32675,7 +32700,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                 console.info('Successfully completed test run.');
             }
             else if (result.status === 'FAILED') {
-                (0, core_1.setFailed)('Test run failed. Check flow results for details.');
+                (0, core_1.setFailed)(`Test run failed. Check flow results for details: ${result.consoleUrl}`);
             }
         }
         else {
