@@ -330,6 +330,18 @@ For iOS tests, you can run your flows against x86 architecture simulators instea
     x86-arch: true
 ```
 
+# Custom config file
+
+You can specify a custom path to your Maestro config file. Defaults to looking for config.yaml in the workspace folder.
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    config: path/to/my-maestro-config.yaml
+```
+
 # Using Action Outputs
 
 The action provides several outputs that you can use in subsequent steps of your workflow. Here's how to use them:
@@ -427,4 +439,5 @@ Here's a complete example showing all available options:
     ignore-sha-check: false
     download-artifacts: FAILED  # ALL|FAILED
     api-url: https://api.devicecloud.dev
+    config: path/to/maestro-config.yaml
 ```

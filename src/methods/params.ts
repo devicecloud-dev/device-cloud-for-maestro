@@ -28,6 +28,7 @@ export type Params = {
   ignoreShaCheck?: boolean;
   report?: 'junit' | 'html';
   x86Arch?: boolean;
+  config?: string;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -166,6 +167,7 @@ export async function getParameters(): Promise<Params> {
   }
 
   const x86Arch = core.getInput('x86-arch', { required: false }) === 'true';
+  const config = core.getInput('config', { required: false });
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -206,5 +208,6 @@ export async function getParameters(): Promise<Params> {
     ignoreShaCheck,
     report,
     x86Arch,
+    config,
   };
 }

@@ -87,6 +87,9 @@ inputs:
   x86-arch:
     description: '[iOS only, experimental] Run your flow against x86 architecture simulator instead of arm64'
     required: false
+  config:
+    description: 'Specific path to your maestro config file'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:
