@@ -339,7 +339,7 @@ You can specify a custom runner type using the `runner-type` parameter:
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
-    runner-type: premium
+    runner-type: m4
 ```
 
 Note: Anything other than the default runner type will incur premium pricing. See the [documentation](https://docs.devicecloud.dev/reference/runner-type) for more information.
