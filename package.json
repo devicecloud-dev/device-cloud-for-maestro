@@ -2,7 +2,7 @@
   "name": "dcd-github-action",
   "description": "run maestro tests on devicecloud.dev",
   "author": "devicecloud.dev",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "main": "src/index.ts",
   "license": "MIT",
   "engines": {

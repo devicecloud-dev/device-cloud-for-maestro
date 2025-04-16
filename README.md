@@ -330,6 +330,20 @@ For iOS tests, you can run your flows against x86 architecture simulators instea
     x86-arch: true
 ```
 
+# Runner Types (Experimental)
+
+You can specify a custom runner type using the `runner-type` parameter:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    runner-type: premium
+```
+
+Note: Anything other than the default runner type will incur premium pricing. See the [documentation](https://docs.devicecloud.dev/reference/runner-type) for more information.
+
 # Custom config file
 
 You can specify a custom path to your Maestro config file. Defaults to looking for config.yaml in the workspace folder.
@@ -440,4 +454,5 @@ Here's a complete example showing all available options:
     download-artifacts: FAILED  # ALL|FAILED
     api-url: https://api.devicecloud.dev
     config: path/to/maestro-config.yaml
+    runner-type: default   # Experimental: m1|m4
 ```

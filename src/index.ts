@@ -107,6 +107,7 @@ const run = async (): Promise<void> => {
       retry,
       workspaceFolder,
       x86Arch,
+      runnerType,
     } = await getParameters();
 
     const params: Record<string, any> = {
@@ -136,6 +137,7 @@ const run = async (): Promise<void> => {
       report,
       retry,
       'x86-arch': x86Arch,
+      'runner-type': runnerType,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

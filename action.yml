@@ -90,6 +90,10 @@ inputs:
   config:
     description: 'Specific path to your maestro config file'
     required: false
+  runner-type:
+    description: '[experimental] The type of runner to use <options: m1|m4> - note: anything other than default will incur premium pricing tiers. See https://docs.devicecloud.dev/reference/runner-type for more information'
+    required: false
+    default: 'default'
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:
