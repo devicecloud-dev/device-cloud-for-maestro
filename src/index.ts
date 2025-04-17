@@ -2,7 +2,7 @@ import { setFailed, setOutput } from '@actions/core';
 import { getParameters } from './methods/params';
 import { spawn } from 'child_process';
 
-const dcdVersionString = '@devicecloud.dev/dcd@>=3.3.6';
+const dcdVersionString = '@devicecloud.dev/dcd@>=3.6.5';
 
 const escapeShellValue = (value: string): string => {
   // Escape special characters that could cause shell interpretation issues
