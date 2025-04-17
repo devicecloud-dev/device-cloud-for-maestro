@@ -29932,7 +29932,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
-const dcdVersionString = '@devicecloud.dev/dcd@>=3.3.6';
+const dcdVersionString = '@devicecloud.dev/dcd@>=3.6.5';
 const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
     return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
