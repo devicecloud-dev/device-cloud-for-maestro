@@ -30,6 +30,7 @@ export type Params = {
   x86Arch?: boolean;
   config?: string;
   runnerType?: string;
+  jsonFile?: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -170,6 +171,7 @@ export async function getParameters(): Promise<Params> {
   const x86Arch = core.getInput('x86-arch', { required: false }) === 'true';
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
+  const jsonFile = core.getInput('json-file', { required: false }) === 'true';
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -212,5 +214,6 @@ export async function getParameters(): Promise<Params> {
     x86Arch,
     config,
     runnerType,
+    jsonFile,
   };
 }

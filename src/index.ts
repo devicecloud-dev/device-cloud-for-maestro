@@ -100,6 +100,7 @@ const run = async (): Promise<void> => {
       includeTags,
       iOSVersion,
       iosDevice,
+      jsonFile,
       maestroVersion,
       name,
       orientation,
@@ -138,6 +139,7 @@ const run = async (): Promise<void> => {
       retry,
       'x86-arch': x86Arch,
       'runner-type': runnerType,
+      'json-file': jsonFile,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

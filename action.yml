@@ -38,6 +38,9 @@ inputs:
   env:
     description: 'One or more environment variables to inject into your flows'
     required: false
+  json-file:
+    description: 'Write JSON output to a file with name <run_name>_dcd.json or <upload_id>_dcd.json if no name is provided'
+    required: false
   exclude-flows:
     description: 'Sub directories to ignore when building the flow file list'
     required: false

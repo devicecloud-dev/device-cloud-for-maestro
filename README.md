@@ -402,6 +402,40 @@ Available outputs:
 - `DEVICE_CLOUD_UPLOAD_STATUS`: Status of the test run (PENDING, RUNNING, PASSED, FAILED, CANCELLED)
 - `DEVICE_CLOUD_APP_BINARY_ID`: ID of the uploaded app binary in Device Cloud
 
+# JSON Output File
+
+You can write the test results to a JSON file for easier processing or archiving:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    json-file: true
+```
+
+This will create a file named `<run_name>_dcd.json` or `<upload_id>_dcd.json` if no name is provided, containing all test results and metadata.
+
+Example JSON file content:
+```json
+{
+  "uploadId": "abcd1234-5678-efgh-9012-ijklmnopqrst",
+  "consoleUrl": "https://console.devicecloud.dev/results?upload=abcd1234-5678-efgh-9012-ijklmnopqrst",
+  "appBinaryId": "app-binary-5678",
+  "status": "PASSED",
+  "flowResults": [
+    {
+      "name": "login_test",
+      "status": "PASSED"
+    },
+    {
+      "name": "checkout_flow",
+      "status": "PASSED"
+    }
+  ]
+}
+```
+
 # All Available Options
 
 Here's a complete example showing all available options:
@@ -452,6 +486,7 @@ Here's a complete example showing all available options:
     quiet: false
     ignore-sha-check: false
     download-artifacts: FAILED  # ALL|FAILED
+    json-file: true            # Write test results to a JSON file
     api-url: https://api.devicecloud.dev
     config: path/to/maestro-config.yaml
     runner-type: default   # Experimental: m1|m4
