@@ -4,8 +4,6 @@ This action is a swap in replacement for the [Maestro Cloud Action](https://gith
 
 It lets you run your flows on [devicecloud.dev](https://devicecloud.dev) to save money and access extra features.
 
-*Note: There is one key difference from the Maestro version of the action - for iOS uploads, a `.zip` is required, rather than a `.app`*
-
 # Using the action
 
 Add the following to your workflow. Note that you can use the `v1` tag if you want to keep using the latest version of the action, which will automatically resolve to all `v1.minor.patch` versions as they get published.
@@ -67,7 +65,7 @@ jobs:
     app-file: <app_name>.zip
 ```
 
-`app-file` should point to an Apple silicon compatible Simulator .app build which has then been zipped, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
+`app-file` should point to an Apple silicon compatible Simulator .app build, or a zipped (`.zip`) bundle of a .app build; either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
 
 # Custom workspace location
 
