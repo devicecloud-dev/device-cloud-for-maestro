@@ -29981,7 +29981,7 @@ const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, vo
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, skipChromeOnboarding, } = yield (0, params_1.getParameters)();
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -30011,6 +30011,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'x86-arch': x86Arch,
             'runner-type': runnerType,
             'json-file': jsonFile,
+            'skip-chrome-onboarding': skipChromeOnboarding,
         };
         let paramsString = Object.keys(params).reduce((acc, key) => {
             if (!params[key])
@@ -30238,6 +30239,7 @@ function getParameters() {
         const config = core.getInput('config', { required: false });
         const runnerType = core.getInput('runner-type', { required: false });
         const jsonFile = core.getInput('json-file', { required: false }) === 'true';
+        const skipChromeOnboarding = core.getInput('skip-chrome-onboarding', { required: false }) === 'true';
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
@@ -30275,6 +30277,7 @@ function getParameters() {
             config,
             runnerType,
             jsonFile,
+            skipChromeOnboarding,
         };
     });
 }
