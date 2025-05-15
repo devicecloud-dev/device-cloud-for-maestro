@@ -330,6 +330,18 @@ For iOS tests, you can run your flows against x86 architecture simulators instea
     x86-arch: true
 ```
 
+# Skip Chrome Onboarding (Android)
+
+For Android tests, you can skip Chrome browser onboarding screens when running tests:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v1
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    skip-chrome-onboarding: true
+```
+
 # Runner Types (Experimental)
 
 You can specify a custom runner type using the `runner-type` parameter:
@@ -464,6 +476,7 @@ Here's a complete example showing all available options:
     orientation: 0         # 0|90|180|270 (Android only)
     google-play: false     # Use Google Play devices (Android)
     x86-arch: false       # Use x86 architecture (iOS)
+    skip-chrome-onboarding: false  # Skip Chrome onboarding screens (Android)
     
     # Flow Configuration
     workspace: myFlows/

@@ -31,6 +31,7 @@ export type Params = {
   config?: string;
   runnerType?: string;
   jsonFile?: boolean;
+  skipChromeOnboarding?: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -172,6 +173,8 @@ export async function getParameters(): Promise<Params> {
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
   const jsonFile = core.getInput('json-file', { required: false }) === 'true';
+  const skipChromeOnboarding =
+    core.getInput('skip-chrome-onboarding', { required: false }) === 'true';
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -215,5 +218,6 @@ export async function getParameters(): Promise<Params> {
     config,
     runnerType,
     jsonFile,
+    skipChromeOnboarding,
   };
 }

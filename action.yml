@@ -97,6 +97,9 @@ inputs:
     description: '[experimental] The type of runner to use <options: m1|m4> - note: anything other than default will incur premium pricing tiers. See https://docs.devicecloud.dev/reference/runner-type for more information'
     required: false
     default: 'default'
+  skip-chrome-onboarding:
+    description: '[Android only] Skip Chrome browser onboarding screens when running tests'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:

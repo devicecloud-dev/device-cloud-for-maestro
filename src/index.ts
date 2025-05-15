@@ -109,6 +109,7 @@ const run = async (): Promise<void> => {
       workspaceFolder,
       x86Arch,
       runnerType,
+      skipChromeOnboarding,
     } = await getParameters();
 
     const params: Record<string, any> = {
@@ -140,6 +141,7 @@ const run = async (): Promise<void> => {
       'x86-arch': x86Arch,
       'runner-type': runnerType,
       'json-file': jsonFile,
+      'skip-chrome-onboarding': skipChromeOnboarding,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {
