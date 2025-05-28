@@ -110,6 +110,7 @@ const run = async (): Promise<void> => {
       x86Arch,
       runnerType,
       skipChromeOnboarding,
+      moropoV1ApiKey,
     } = await getParameters();
 
     const params: Record<string, any> = {
@@ -142,6 +143,7 @@ const run = async (): Promise<void> => {
       'runner-type': runnerType,
       'json-file': jsonFile,
       'skip-chrome-onboarding': skipChromeOnboarding,
+      'moropo-v1-api-key': moropoV1ApiKey,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

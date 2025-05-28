@@ -68,6 +68,9 @@ inputs:
   maestro-version:
     description: 'Maestro version to run your flow against'
     required: false
+  moropo-v1-api-key:
+    description: 'API key for Moropo v1 integration'
+    required: false
   name:
     description: 'A custom name for your upload (useful for tagging commits etc)'
     required: false

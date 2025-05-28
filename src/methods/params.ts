@@ -32,6 +32,7 @@ export type Params = {
   runnerType?: string;
   jsonFile?: boolean;
   skipChromeOnboarding?: boolean;
+  moropoV1ApiKey?: string;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -175,6 +176,9 @@ export async function getParameters(): Promise<Params> {
   const jsonFile = core.getInput('json-file', { required: false }) === 'true';
   const skipChromeOnboarding =
     core.getInput('skip-chrome-onboarding', { required: false }) === 'true';
+  const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
+    required: false,
+  });
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -219,5 +223,6 @@ export async function getParameters(): Promise<Params> {
     runnerType,
     jsonFile,
     skipChromeOnboarding,
+    moropoV1ApiKey,
   };
 }
