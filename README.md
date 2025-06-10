@@ -69,15 +69,17 @@ jobs:
 
 # Custom workspace location
 
-By default, the action is looking for a `.maestro` folder with Maestro flows in the root directory of the project. If you would like to customize this behaviour, you can override it with a `workspace` argument:
+By default, the action is looking for a `.maestro` folder with Maestro flows in the root directory of the project. If you would like to customize this behaviour, you can override it with either a `flows` or `workspace` argument:
 
 ```yaml
 - uses: devicecloud-dev/device-cloud-for-maestro@v1
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
-    workspace: myFlows/
+    flows: myFlows/  # or workspace: myFlows/
 ```
+
+Both `flows` and `workspace` parameters serve the same purpose. If both are provided, `flows` takes precedence.
 
 # Custom name
 
@@ -479,7 +481,7 @@ Here's a complete example showing all available options:
     skip-chrome-onboarding: false  # Skip Chrome onboarding screens (Android)
     
     # Flow Configuration
-    workspace: myFlows/
+    flows: myFlows/       # or workspace: myFlows/ (flows takes precedence)
     exclude-flows: |
       tests/experimental
     include-tags: smoke,critical
