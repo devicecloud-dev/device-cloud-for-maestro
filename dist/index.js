@@ -30211,7 +30211,10 @@ function getParameters() {
             'https://api.devicecloud.dev';
         const apiKey = core.getInput('api-key', { required: true });
         const name = core.getInput('name', { required: false }) || getInferredName();
-        const workspaceFolder = core.getInput('workspace', { required: false });
+        // Support both 'flows' and 'workspace' inputs (flows takes precedence if both are provided)
+        const flowsInput = core.getInput('flows', { required: false });
+        const workspaceInput = core.getInput('workspace', { required: false });
+        const workspaceFolder = flowsInput || workspaceInput;
         const async = core.getInput('async', { required: false }) === 'true';
         const androidApiLevelString = core.getInput('android-api-level', {
             required: false,
