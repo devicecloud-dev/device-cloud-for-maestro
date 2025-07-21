@@ -29982,7 +29982,7 @@ const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, vo
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, skipChromeOnboarding, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, skipChromeOnboarding, debug, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -30013,6 +30013,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'runner-type': runnerType,
             'json-file': jsonFile,
             'skip-chrome-onboarding': skipChromeOnboarding,
+            debug,
             'moropo-v1-api-key': moropoV1ApiKey,
         };
         let paramsString = Object.keys(params).reduce((acc, key) => {
@@ -30245,6 +30246,7 @@ function getParameters() {
         const runnerType = core.getInput('runner-type', { required: false });
         const jsonFile = core.getInput('json-file', { required: false }) === 'true';
         const skipChromeOnboarding = core.getInput('skip-chrome-onboarding', { required: false }) === 'true';
+        const debug = core.getInput('debug', { required: false }) === 'true';
         const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
             required: false,
         });
@@ -30286,6 +30288,7 @@ function getParameters() {
             runnerType,
             jsonFile,
             skipChromeOnboarding,
+            debug,
             moropoV1ApiKey,
         };
     });
