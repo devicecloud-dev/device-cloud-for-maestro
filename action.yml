@@ -103,6 +103,9 @@ inputs:
   skip-chrome-onboarding:
     description: '[Android only] Skip Chrome browser onboarding screens when running tests'
     required: false
+  debug:
+    description: 'Enable debug mode for more verbose output'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:

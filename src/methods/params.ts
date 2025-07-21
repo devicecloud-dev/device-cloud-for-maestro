@@ -32,6 +32,7 @@ export type Params = {
   runnerType?: string;
   jsonFile?: boolean;
   skipChromeOnboarding?: boolean;
+  debug?: boolean;
   moropoV1ApiKey?: string;
 };
 
@@ -181,6 +182,7 @@ export async function getParameters(): Promise<Params> {
   const jsonFile = core.getInput('json-file', { required: false }) === 'true';
   const skipChromeOnboarding =
     core.getInput('skip-chrome-onboarding', { required: false }) === 'true';
+  const debug = core.getInput('debug', { required: false }) === 'true';
   const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
     required: false,
   });
@@ -228,6 +230,7 @@ export async function getParameters(): Promise<Params> {
     runnerType,
     jsonFile,
     skipChromeOnboarding,
+    debug,
     moropoV1ApiKey,
   };
 }
