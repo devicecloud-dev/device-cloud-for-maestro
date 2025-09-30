@@ -2,7 +2,7 @@ import { setFailed, setOutput } from '@actions/core';
 import { getParameters } from './methods/params';
 import { spawn } from 'child_process';
 
-const dcdVersionString = '@devicecloud.dev/dcd@>=3.7.4';
+const dcdPackageName = '@devicecloud.dev/dcd';
 
 const escapeShellValue = (value: string): string => {
   // Escape special characters that could cause shell interpretation issues
@@ -60,6 +60,7 @@ const executeCommand = (
 const getTestStatus = async (
   uploadId: string,
   apiKey: string,
+  dcdVersionString: string,
   apiUrl?: string
 ): Promise<StatusResponse | null> => {
   try {
@@ -77,8 +78,25 @@ const getTestStatus = async (
   }
 };
 
+const getLatestDcdVersion = async (): Promise<string> => {
+  try {
+    const { output } = await executeCommand(
+      `npm view ${dcdPackageName} version`,
+      false
+    );
+    const version = output.trim();
+    console.info(`Latest DCD version from npm: ${version}`);
+    return `${dcdPackageName}@${version}`;
+  } catch (error) {
+    console.warn('Failed to fetch latest DCD version, falling back to >=4.0.3:', error);
+    return `${dcdPackageName}@>=4.0.3`;
+  }
+};
+
 const run = async (): Promise<void> => {
   try {
+    const dcdVersionString = await getLatestDcdVersion();
+
     const {
       additionalAppBinaryIds,
       additionalAppFiles,
@@ -196,7 +214,7 @@ const run = async (): Promise<void> => {
     }
 
     // Get the test status and results
-    const result = await getTestStatus(uploadId, apiKey, apiUrl);
+    const result = await getTestStatus(uploadId, apiKey, dcdVersionString, apiUrl);
 
     if (result) {
       // Set outputs based on the status results
