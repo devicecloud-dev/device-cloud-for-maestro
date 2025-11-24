@@ -90,9 +90,6 @@ inputs:
     description: 'The path to the workspace folder containing your flows'
     required: false
     default: './.maestro/'
-  x86-arch:
-    description: '[iOS only, experimental] Run your flow against x86 architecture simulator instead of arm64'
-    required: false
   config:
     description: 'Specific path to your maestro config file'
     required: false

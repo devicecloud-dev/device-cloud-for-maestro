@@ -54,7 +54,7 @@ jobs:
     app-file: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-`app-file` should point to an x86 compatible APK file, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
+`app-file` should point to an APK file, either directly to the file or a glob pattern matching the file name. When using a pattern, the first matched file will be used.
 
 # iOS
 
@@ -320,18 +320,6 @@ For Android tests, you can run your flows against Google Play devices:
     google-play: true
 ```
 
-# x86 Architecture (iOS)
-
-For iOS tests, you can run your flows against x86 architecture simulators instead of arm64 (experimental):
-
-```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
-  with:
-    api-key: ${{ secrets.DCD_API_KEY }}
-    app-file: app.zip
-    x86-arch: true
-```
-
 # Runner Types (Experimental)
 
 You can specify a custom runner type using the `runner-type` parameter:
@@ -465,7 +453,6 @@ Here's a complete example showing all available options:
     device-locale: en_US   # ISO-639-1_ISO-3166-1
     orientation: 0         # 0|90|180|270 (Android only)
     google-play: false     # Use Google Play devices (Android)
-    x86-arch: false       # Use x86 architecture (iOS)
 
     # Flow Configuration
     flows: myFlows/       # or workspace: myFlows/ (flows takes precedence)

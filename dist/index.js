@@ -29995,7 +29995,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const dcdVersionString = yield getLatestDcdVersion();
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, debug, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -30022,7 +30022,6 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             orientation,
             report,
             retry,
-            'x86-arch': x86Arch,
             'runner-type': runnerType,
             'json-file': jsonFile,
             debug,
@@ -30253,7 +30252,6 @@ function getParameters() {
         if (report && report !== 'junit' && report !== 'html') {
             throw new Error('Report format must be either "junit" or "html"');
         }
-        const x86Arch = core.getInput('x86-arch', { required: false }) === 'true';
         const config = core.getInput('config', { required: false });
         const runnerType = core.getInput('runner-type', { required: false });
         const jsonFile = core.getInput('json-file', { required: false }) === 'true';
@@ -30294,7 +30292,6 @@ function getParameters() {
             retry,
             ignoreShaCheck,
             report,
-            x86Arch,
             config,
             runnerType,
             jsonFile,

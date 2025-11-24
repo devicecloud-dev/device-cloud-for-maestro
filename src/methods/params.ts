@@ -27,7 +27,6 @@ export type Params = {
   retry?: number;
   ignoreShaCheck?: boolean;
   report?: 'junit' | 'html';
-  x86Arch?: boolean;
   config?: string;
   runnerType?: string;
   jsonFile?: boolean;
@@ -175,7 +174,6 @@ export async function getParameters(): Promise<Params> {
     throw new Error('Report format must be either "junit" or "html"');
   }
 
-  const x86Arch = core.getInput('x86-arch', { required: false }) === 'true';
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
   const jsonFile = core.getInput('json-file', { required: false }) === 'true';
@@ -222,7 +220,6 @@ export async function getParameters(): Promise<Params> {
     retry,
     ignoreShaCheck,
     report,
-    x86Arch,
     config,
     runnerType,
     jsonFile,
