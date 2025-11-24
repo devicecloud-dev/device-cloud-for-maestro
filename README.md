@@ -448,8 +448,8 @@ Here's a complete example showing all available options:
     # Device Configuration
     android-device: pixel-6  # pixel-6|pixel-6-pro|pixel-7|pixel-7-pro|generic-tablet
     android-api-level: 34   # 29-35
-    ios-device: iphone-14   # iphone-13 through iphone-16-pro-max, ipad-pro-6th-gen
-    ios-version: 17        # 16|17|18
+    ios-device: iphone-14   # iphone-14|iphone-14-pro|iphone-15|iphone-15-pro|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen
+    ios-version: 17        # 16|17|18|26
     device-locale: en_US   # ISO-639-1_ISO-3166-1
     orientation: 0         # 0|90|180|270 (Android only)
     google-play: false     # Use Google Play devices (Android)

@@ -60,10 +60,10 @@ inputs:
     description: 'Only flows which have these tags will be included in the run'
     required: false
   ios-device:
-    description: '[iOS only] iOS device to run your flow against <options: iphone-13|iphone-14|iphone-14-plus|iphone-14-pro|iphone-14-pro-max|iphone-15|iphone-15-plus|iphone-15-pro|iphone-15-pro-max|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen>'
+    description: '[iOS only] iOS device to run your flow against <options: iphone-14|iphone-14-pro|iphone-15|iphone-15-pro|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen>'
     required: false
   ios-version:
-    description: '[iOS only] iOS version to run your flow against <options: 16|17|18>'
+    description: '[iOS only] iOS version to run your flow against <options: 16|17|18|26>'
     required: false
   maestro-version:
     description: 'Maestro version to run your flow against'
