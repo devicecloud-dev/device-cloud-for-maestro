@@ -84,7 +84,7 @@ inputs:
     description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html>'
     required: false
   retry:
-    description: 'Number of times to retry the run if it fails (same as pressing retry in the UI, this will deduct credits from your account)'
+    description: 'Number of times to retry the run if it fails (same as pressing retry in the UI, this is free)'
     required: false
   workspace:
     description: 'The path to the workspace folder containing your flows'
@@ -100,9 +100,6 @@ inputs:
     description: '[experimental] The type of runner to use <options: m1|m4> - note: anything other than default will incur premium pricing tiers. See https://docs.devicecloud.dev/reference/runner-type for more information'
     required: false
     default: 'default'
-  skip-chrome-onboarding:
-    description: '[Android only] Skip Chrome browser onboarding screens when running tests'
-    required: false
   debug:
     description: 'Enable debug mode for more verbose output'
     required: false

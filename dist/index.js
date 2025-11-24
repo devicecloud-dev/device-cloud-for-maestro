@@ -29933,7 +29933,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const params_1 = __nccwpck_require__(5966);
 const child_process_1 = __nccwpck_require__(2081);
-const dcdVersionString = '@devicecloud.dev/dcd@>=3.7.4';
+const dcdPackageName = '@devicecloud.dev/dcd';
 const escapeShellValue = (value) => {
     // Escape special characters that could cause shell interpretation issues
     return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
@@ -29965,7 +29965,7 @@ const executeCommand = (command, log = true) => {
         });
     });
 };
-const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, void 0, function* () {
+const getTestStatus = (uploadId, apiKey, dcdVersionString, apiUrl) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let command = `npx --yes "${dcdVersionString}" status --json --upload-id ${uploadId} --api-key ${escapeShellValue(apiKey)}`;
         if (apiUrl) {
@@ -29979,10 +29979,23 @@ const getTestStatus = (uploadId, apiKey, apiUrl) => __awaiter(void 0, void 0, vo
         return null;
     }
 });
+const getLatestDcdVersion = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { output } = yield executeCommand(`npm view ${dcdPackageName} version`, false);
+        const version = output.trim();
+        console.info(`Latest DCD version from npm: ${version}`);
+        return `${dcdPackageName}@${version}`;
+    }
+    catch (error) {
+        console.warn('Failed to fetch latest DCD version, falling back to >=4.0.3:', error);
+        return `${dcdPackageName}@>=4.0.3`;
+    }
+});
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, skipChromeOnboarding, debug, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
+        const dcdVersionString = yield getLatestDcdVersion();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, x86Arch, runnerType, debug, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -30012,7 +30025,6 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'x86-arch': x86Arch,
             'runner-type': runnerType,
             'json-file': jsonFile,
-            'skip-chrome-onboarding': skipChromeOnboarding,
             debug,
             'moropo-v1-api-key': moropoV1ApiKey,
         };
@@ -30053,7 +30065,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             throw new Error('Failed to get upload ID from console URL');
         }
         // Get the test status and results
-        const result = yield getTestStatus(uploadId, apiKey, apiUrl);
+        const result = yield getTestStatus(uploadId, apiKey, dcdVersionString, apiUrl);
         if (result) {
             // Set outputs based on the status results
             (0, core_1.setOutput)('DEVICE_CLOUD_CONSOLE_URL', result.consoleUrl || '');
@@ -30245,7 +30257,6 @@ function getParameters() {
         const config = core.getInput('config', { required: false });
         const runnerType = core.getInput('runner-type', { required: false });
         const jsonFile = core.getInput('json-file', { required: false }) === 'true';
-        const skipChromeOnboarding = core.getInput('skip-chrome-onboarding', { required: false }) === 'true';
         const debug = core.getInput('debug', { required: false }) === 'true';
         const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
             required: false,
@@ -30287,7 +30298,6 @@ function getParameters() {
             config,
             runnerType,
             jsonFile,
-            skipChromeOnboarding,
             debug,
             moropoV1ApiKey,
         };
