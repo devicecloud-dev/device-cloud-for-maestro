@@ -1,5 +1,5 @@
 name: Update major release tag
-run-name: Update major release tag for ${{ github.ref }}
+run-name: Update major release tag for ${{ github.event.release.tag_name }}
 
 on:
   release:
@@ -22,7 +22,7 @@ jobs:
 
       - name: Update tag to major version
         run: |
-          VERSION=${{ github.ref_name }}
+          VERSION=${{ github.event.release.tag_name }}
           MAJOR=${VERSION%%.*}
 
           echo "Updating tag ${MAJOR} (source: ${VERSION}) to ${GITHUB_SHA}"
