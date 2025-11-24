@@ -30065,7 +30065,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         finally {
             uploadId =
-                ((_a = testOutput === null || testOutput === void 0 ? void 0 : testOutput.match(/https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || null;
+                ((_a = testOutput === null || testOutput === void 0 ? void 0 : testOutput.match(/https:\/\/(?:dev\.)?console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || null;
         }
         if (!uploadId) {
             throw new Error('Failed to get upload ID from console URL');

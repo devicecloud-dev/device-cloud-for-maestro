@@ -201,7 +201,7 @@ const run = async (): Promise<void> => {
     } finally {
       uploadId =
         testOutput?.match(
-          /https:\/\/console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/
+          /https:\/\/(?:dev\.)?console\.devicecloud\.dev\/results\?upload=([a-zA-Z0-9-]+)/
         )?.[1] || null;
     }
 
