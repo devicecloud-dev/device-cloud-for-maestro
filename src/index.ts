@@ -78,8 +78,12 @@ const getTestStatus = async (
   }
 };
 
-const getLatestDcdVersion = async (): Promise<string> => {
+const getLatestDcdVersion = async (useBeta: boolean = false): Promise<string> => {
   try {
+    if (useBeta) {
+      console.info(`Using beta version of DCD CLI`);
+      return `${dcdPackageName}@beta`;
+    }
     const { output } = await executeCommand(
       `npm view ${dcdPackageName} version`,
       false
@@ -95,8 +99,6 @@ const getLatestDcdVersion = async (): Promise<string> => {
 
 const run = async (): Promise<void> => {
   try {
-    const dcdVersionString = await getLatestDcdVersion();
-
     const {
       additionalAppBinaryIds,
       additionalAppFiles,
@@ -128,7 +130,10 @@ const run = async (): Promise<void> => {
       runnerType,
       debug,
       moropoV1ApiKey,
+      useBeta,
     } = await getParameters();
+
+    const dcdVersionString = await getLatestDcdVersion(useBeta);
 
     const params: Record<string, any> = {
       'additional-app-binary-ids': additionalAppBinaryIds,

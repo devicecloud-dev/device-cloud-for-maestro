@@ -100,6 +100,9 @@ inputs:
   debug:
     description: 'Enable debug mode for more verbose output'
     required: false
+  use-beta:
+    description: 'Use the beta version of the DCD CLI instead of the latest stable version'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:

@@ -32,6 +32,7 @@ export type Params = {
   jsonFile?: boolean;
   debug?: boolean;
   moropoV1ApiKey?: string;
+  useBeta?: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -181,6 +182,7 @@ export async function getParameters(): Promise<Params> {
   const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
     required: false,
   });
+  const useBeta = core.getInput('use-beta', { required: false }) === 'true';
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -225,5 +227,6 @@ export async function getParameters(): Promise<Params> {
     jsonFile,
     debug,
     moropoV1ApiKey,
+    useBeta,
   };
 }
