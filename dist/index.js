@@ -29986,8 +29986,12 @@ const getTestStatus = (uploadId, apiKey, dcdVersionString, apiUrl) => __awaiter(
         return null;
     }
 });
-const getLatestDcdVersion = () => __awaiter(void 0, void 0, void 0, function* () {
+const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (useBeta = false) {
     try {
+        if (useBeta) {
+            console.info(`Using beta version of DCD CLI`);
+            return `${dcdPackageName}@beta`;
+        }
         const { output } = yield executeCommand(`npm view ${dcdPackageName} version`, false);
         const version = output.trim();
         console.info(`Latest DCD version from npm: ${version}`);
@@ -30001,8 +30005,8 @@ const getLatestDcdVersion = () => __awaiter(void 0, void 0, void 0, function* ()
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const dcdVersionString = yield getLatestDcdVersion();
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, } = yield (0, params_1.getParameters)();
+        const dcdVersionString = yield getLatestDcdVersion(useBeta);
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
             'additional-app-files': additionalAppFiles,
@@ -30266,6 +30270,7 @@ function getParameters() {
         const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
             required: false,
         });
+        const useBeta = core.getInput('use-beta', { required: false }) === 'true';
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
@@ -30304,6 +30309,7 @@ function getParameters() {
             jsonFile,
             debug,
             moropoV1ApiKey,
+            useBeta,
         };
     });
 }
