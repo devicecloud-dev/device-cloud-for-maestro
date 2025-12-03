@@ -6,10 +6,10 @@ It lets you run your flows on [devicecloud.dev](https://devicecloud.dev) to save
 
 # Using the action
 
-Add the following to your workflow. Note that you can use the `v1` tag if you want to keep using the latest version of the action, which will automatically resolve to all `v1.minor.patch` versions as they get published.
+Add the following to your workflow. Note that you can use the `v2` tag if you want to keep using the latest version of the action, which will automatically resolve to all `v2.minor.patch` versions as they get published.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: <path_to_your_app_file>
@@ -48,7 +48,7 @@ jobs:
 # Android
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app/build/outputs/apk/debug/app-debug.apk
@@ -59,7 +59,7 @@ jobs:
 # iOS
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: <app_name>.zip
@@ -72,7 +72,7 @@ jobs:
 By default, the action is looking for a `.maestro` folder with Maestro flows in the root directory of the project. If you would like to customize this behaviour, you can override it with either a `flows` or `workspace` argument:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -88,7 +88,7 @@ The run name will automatically be populated with the commit message.
 If you want to override this behaviour and specify your own name, you can do so by setting the `name` argument:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -100,7 +100,7 @@ If you want to override this behaviour and specify your own name, you can do so 
 If you don't want the action to wait until the Upload has been completed as is the default behaviour, set the `async` argument to `true`:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -112,7 +112,7 @@ If you don't want the action to wait until the Upload has been completed as is t
 If you want to pass environment variables along with your upload, add a multiline `env` argument:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -128,7 +128,7 @@ You can use Maestro [Tags](https://maestro.mobile.dev/cli/tags) to filter which 
 You can either pass a single value, or comma-separated (`,`) values.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -143,7 +143,7 @@ You can specify what Android API level to use when running in devicecloud.dev us
 The default API level is 34. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available Android emulator API levels.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -157,7 +157,7 @@ You can specify what **major** iOS Version to use when running in devicecloud.de
 The default iOS version is 17. [Refer to docs](https://docs.devicecloud.dev/getting-started/devices-configuration) for available iOS simulator versions.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -169,7 +169,7 @@ The default iOS version is 17. [Refer to docs](https://docs.devicecloud.dev/gett
 You can use an already uploaded App binary in devicecloud.dev using the `app-binary-id` parameter.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-binary-id: <your-app-binary-id>
@@ -180,7 +180,7 @@ You can use an already uploaded App binary in devicecloud.dev using the `app-bin
 You can specify the orientation of Android devices in degrees using the `orientation` parameter:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -192,7 +192,7 @@ You can specify the orientation of Android devices in degrees using the `orienta
 You can set the device locale using ISO codes:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -204,7 +204,7 @@ You can set the device locale using ISO codes:
 You can include additional app binaries either by file or by previously uploaded binary ID:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -221,7 +221,7 @@ You can include additional app binaries either by file or by previously uploaded
 You can download logs, screenshots and videos for test results (BETA feature):
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -235,7 +235,7 @@ Note: There is a $0.01 egress fee per result when using this feature.
 You can specify which version of Maestro to use (ALPHA feature):
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -253,7 +253,7 @@ See a full list of available device models [here](https://docs.devicecloud.dev/g
 Specify an Android device model to run your tests on:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -265,7 +265,7 @@ Specify an Android device model to run your tests on:
 Specify an iOS device model to run your tests on:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.zip
@@ -277,7 +277,7 @@ Specify an iOS device model to run your tests on:
 The `retry` parameter allows you to specify the number of times to retry the run if it fails. This is the same as pressing retry in the UI, and it will deduct credits from your account. Max is 3 retries.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -289,7 +289,7 @@ The `retry` parameter allows you to specify the number of times to retry the run
 You can generate test reports in specific formats using the `report` parameter:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -301,7 +301,7 @@ You can generate test reports in specific formats using the `report` parameter:
 You can bypass the binary hash check using the `ignore-sha-check` parameter (not recommended):
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -313,7 +313,7 @@ You can bypass the binary hash check using the `ignore-sha-check` parameter (not
 For Android tests, you can run your flows against Google Play devices:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -325,7 +325,7 @@ For Android tests, you can run your flows against Google Play devices:
 You can specify a custom runner type using the `runner-type` parameter:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -339,7 +339,7 @@ Note: Anything other than the default runner type will incur premium pricing. Se
 You can specify a custom path to your Maestro config file. Defaults to looking for config.yaml in the workspace folder.
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -355,7 +355,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: devicecloud-dev/device-cloud-for-maestro@v1
+      - uses: devicecloud-dev/device-cloud-for-maestro@v2
         id: devicecloud  # Important: Add an ID to reference the step
         with:
           api-key: ${{ secrets.DCD_API_KEY }}
@@ -397,7 +397,7 @@ Available outputs:
 You can write the test results to a JSON file for easier processing or archiving:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
@@ -431,7 +431,7 @@ Example JSON file content:
 Here's a complete example showing all available options:
 
 ```yaml
-- uses: devicecloud-dev/device-cloud-for-maestro@v1
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     # Required
     api-key: ${{ secrets.DCD_API_KEY }}
