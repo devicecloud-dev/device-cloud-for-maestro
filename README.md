@@ -228,7 +228,6 @@ You can download logs, screenshots and videos for test results (BETA feature):
     download-artifacts: FAILED # Options: ALL|FAILED
 ```
 
-Note: There is a $0.01 egress fee per result when using this feature.
 
 # Specifying Maestro version
 
@@ -293,7 +292,7 @@ You can generate test reports in specific formats using the `report` parameter:
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
-    report: junit # Options: junit|html
+    report: junit # Options: junit|html|allure
 ```
 
 # Ignore SHA Check
@@ -468,7 +467,7 @@ Here's a complete example showing all available options:
       KEY2=value2
     name: Custom Run Name
     retry: 3
-    report: junit         # junit|html
+    report: junit         # junit|html|allure
     
     # Execution Options
     async: false
@@ -478,5 +477,5 @@ Here's a complete example showing all available options:
     json-file: true            # Write test results to a JSON file
     api-url: https://api.devicecloud.dev
     config: path/to/maestro-config.yaml
-    runner-type: default   # Experimental: m1|m4
+    runner-type: default   # Experimental: m1|m4|gpu1
 ```
