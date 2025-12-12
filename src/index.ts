@@ -71,7 +71,30 @@ const getTestStatus = async (
       command += ` --api-url ${escapeShellValue(apiUrl)}`;
     }
     const { output } = await executeCommand(command, false);
-    return JSON.parse(output);
+
+    // Filter out non-JSON lines (e.g., npm warnings)
+    // Find the first line that starts with '{' or '[' (JSON start)
+    const lines = output.split('\n');
+    const jsonStartIndex = lines.findIndex(line => {
+      const trimmed = line.trim();
+      return trimmed.startsWith('{') || trimmed.startsWith('[');
+    });
+
+    if (jsonStartIndex === -1) {
+      throw new Error('No JSON found in output');
+    }
+
+    // Log any warnings that appeared before the JSON output
+    if (jsonStartIndex > 0) {
+      const warnings = lines.slice(0, jsonStartIndex).join('\n').trim();
+      if (warnings) {
+        console.warn('npm warnings during status check:\n', warnings);
+      }
+    }
+
+    // Join from the JSON start to the end
+    const jsonOutput = lines.slice(jsonStartIndex).join('\n');
+    return JSON.parse(jsonOutput);
   } catch (error) {
     console.warn('Failed to get test status:', error);
     return null;
