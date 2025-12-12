@@ -33,6 +33,7 @@ export type Params = {
   debug?: boolean;
   moropoV1ApiKey?: string;
   useBeta?: boolean;
+  maestroChromeOnboarding?: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -184,6 +185,8 @@ export async function getParameters(): Promise<Params> {
   });
   const useBeta = core.getInput('use-beta', { required: false }) === 'true';
 
+  const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
+
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
   }
@@ -228,5 +231,6 @@ export async function getParameters(): Promise<Params> {
     debug,
     moropoV1ApiKey,
     useBeta,
+    maestroChromeOnboarding,
   };
 }

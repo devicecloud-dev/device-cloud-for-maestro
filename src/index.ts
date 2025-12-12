@@ -131,6 +131,7 @@ const run = async (): Promise<void> => {
       debug,
       moropoV1ApiKey,
       useBeta,
+      maestroChromeOnboarding,
     } = await getParameters();
 
     const dcdVersionString = await getLatestDcdVersion(useBeta);
@@ -165,6 +166,7 @@ const run = async (): Promise<void> => {
       'json-file': jsonFile,
       debug,
       'moropo-v1-api-key': moropoV1ApiKey,
+      'maestro-chrome-onboarding': maestroChromeOnboarding,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

@@ -30005,7 +30005,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, } = yield (0, params_1.getParameters)();
         const dcdVersionString = yield getLatestDcdVersion(useBeta);
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
@@ -30037,6 +30037,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'json-file': jsonFile,
             debug,
             'moropo-v1-api-key': moropoV1ApiKey,
+            'maestro-chrome-onboarding': maestroChromeOnboarding,
         };
         let paramsString = Object.keys(params).reduce((acc, key) => {
             if (!params[key])
@@ -30271,6 +30272,7 @@ function getParameters() {
             required: false,
         });
         const useBeta = core.getInput('use-beta', { required: false }) === 'true';
+        const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
@@ -30310,6 +30312,7 @@ function getParameters() {
             debug,
             moropoV1ApiKey,
             useBeta,
+            maestroChromeOnboarding,
         };
     });
 }

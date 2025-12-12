@@ -103,6 +103,10 @@ inputs:
   use-beta:
     description: 'Use the beta version of the DCD CLI instead of the latest stable version'
     required: false
+  maestro-chrome-onboarding:
+    description: '[Android only] Force Maestro-based Chrome onboarding - note: this will slow your tests but can fix browser related crashes. See https://docs.devicecloud.dev/reference/chrome-onboarding for more information.'
+    required: false
+
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:
