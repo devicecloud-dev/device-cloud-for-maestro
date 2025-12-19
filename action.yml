@@ -106,7 +106,9 @@ inputs:
   maestro-chrome-onboarding:
     description: '[Android only] Force Maestro-based Chrome onboarding - note: this will slow your tests but can fix browser related crashes. See https://docs.devicecloud.dev/reference/chrome-onboarding for more information.'
     required: false
-
+  android-no-snapshot:
+    description: '[Android only] Force cold boot instead of using snapshot boot. This is automatically enabled for API 35+ but can be used to force cold boot on older API levels.'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:

@@ -155,6 +155,7 @@ const run = async (): Promise<void> => {
       moropoV1ApiKey,
       useBeta,
       maestroChromeOnboarding,
+      androidNoSnapshot,
     } = await getParameters();
 
     const dcdVersionString = await getLatestDcdVersion(useBeta);
@@ -190,6 +191,7 @@ const run = async (): Promise<void> => {
       debug,
       'moropo-v1-api-key': moropoV1ApiKey,
       'maestro-chrome-onboarding': maestroChromeOnboarding,
+      'android-no-snapshot': androidNoSnapshot,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {
