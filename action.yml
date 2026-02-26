@@ -21,7 +21,7 @@ inputs:
     description: 'The ID of the additional app binary(s) previously uploaded to devicecloud.dev to install before execution'
     required: false
   android-api-level:
-    description: '[Android only] Android API level to run your flow against <options: 29|30|31|32|33|34|35>'
+    description: '[Android only] Android API level to run your flow against <options: 29|30|31|32|33|34|35|36>'
     required: false
   android-device:
     description: '[Android only] Android device to run your flow against <options: pixel-6|pixel-6-pro|pixel-7|pixel-7-pro|generic-tablet>'
