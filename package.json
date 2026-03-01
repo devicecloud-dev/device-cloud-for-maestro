@@ -10,20 +10,22 @@
   },
   "scripts": {
     "build": "ncc build",
-    "test": "pnpm build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
+    "test": "npm run build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
   },
   "dependencies": {
-    "@actions/core": "^1.11.0",
-    "@actions/github": "^6.0.0",
-    "@octokit/rest": "^21.0.0",
-    "form-data": "^4.0.0",
-    "node-fetch": "^2.6.1"
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "@octokit/rest": "^21.1.1",
+    "form-data": "^4.0.5",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "@types/node": "^20.4.8",
-    "@types/node-fetch": "^2.6.4",
+    "@types/node": "^20.19.25",
+    "@types/node-fetch": "^2.6.13",
     "@vercel/ncc": "^0.36.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@9.15.0"
+  "overrides": {
+    "undici": ">=6.23.0"
+  }
 }

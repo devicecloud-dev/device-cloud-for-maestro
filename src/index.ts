@@ -26,10 +26,9 @@ const executeCommand = (
   log: boolean = true
 ): Promise<{ output: string; exitCode: number }> => {
   return new Promise((resolve, reject) => {
-    const [cmd, ...args] = command.split(' ');
     let output = '';
 
-    const process = spawn(cmd, args, { shell: true });
+    const process = spawn(command, { shell: true });
 
     process.stdout.on('data', (data) => {
       const chunk = data.toString();
