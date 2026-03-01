@@ -2,7 +2,7 @@
   "name": "dcd-github-action",
   "description": "run maestro tests on devicecloud.dev",
   "author": "devicecloud.dev",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "main": "src/index.ts",
   "license": "MIT",
   "engines": {
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "ncc build",
-    "test": "npm run build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
+    "test": "pnpm run build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
