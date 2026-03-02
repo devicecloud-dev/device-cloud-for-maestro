@@ -81,7 +81,7 @@ inputs:
     description: 'Quieter console output that wont provide progress updates'
     required: false
   report:
-    description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html>'
+    description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html|html-detailed>'
     required: false
   retry:
     description: 'Number of times to retry the run if it fails (same as pressing retry in the UI, this is free)'
