@@ -109,6 +109,9 @@ inputs:
   android-no-snapshot:
     description: '[Android only] Force cold boot instead of using snapshot boot. This is automatically enabled for API 35+ but can be used to force cold boot on older API levels.'
     required: false
+  enable-animations:
+    description: '[Android only] Keep device animations enabled during test execution. By default, animations are disabled to reduce CPU load and improve test reliability.'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:

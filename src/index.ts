@@ -155,6 +155,7 @@ const run = async (): Promise<void> => {
       useBeta,
       maestroChromeOnboarding,
       androidNoSnapshot,
+      enableAnimations,
     } = await getParameters();
 
     const dcdVersionString = await getLatestDcdVersion(useBeta);
@@ -191,6 +192,7 @@ const run = async (): Promise<void> => {
       'moropo-v1-api-key': moropoV1ApiKey,
       'maestro-chrome-onboarding': maestroChromeOnboarding,
       'android-no-snapshot': androidNoSnapshot,
+      'enable-animations': enableAnimations,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {

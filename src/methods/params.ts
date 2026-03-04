@@ -35,6 +35,7 @@ export type Params = {
   useBeta?: boolean;
   maestroChromeOnboarding?: boolean;
   androidNoSnapshot?: boolean;
+  enableAnimations?: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -188,6 +189,7 @@ export async function getParameters(): Promise<Params> {
 
   const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
   const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
+  const enableAnimations = core.getInput('enable-animations', { required: false }) === 'true';
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -235,5 +237,6 @@ export async function getParameters(): Promise<Params> {
     useBeta,
     maestroChromeOnboarding,
     androidNoSnapshot,
+    enableAnimations,
   };
 }
