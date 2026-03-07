@@ -30024,6 +30024,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, enableAnimations, } = yield (0, params_1.getParameters)();
+        const DEPRECATED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7'];
+        if (maestroVersion && DEPRECATED_MAESTRO_VERSIONS.includes(maestroVersion)) {
+            (0, core_1.warning)(`Maestro version ${maestroVersion} is deprecated and will be removed soon. ` +
+                `Please upgrade to a newer version. See: https://docs.devicecloud.dev/reference/maestro-versions`);
+        }
         const dcdVersionString = yield getLatestDcdVersion(useBeta);
         const params = {
             'additional-app-binary-ids': additionalAppBinaryIds,
