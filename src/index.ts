@@ -1,4 +1,4 @@
-import { setFailed, setOutput } from '@actions/core';
+import { setFailed, setOutput, warning } from '@actions/core';
 import { getParameters } from './methods/params';
 import { spawn } from 'child_process';
 
@@ -157,6 +157,14 @@ const run = async (): Promise<void> => {
       androidNoSnapshot,
       enableAnimations,
     } = await getParameters();
+
+    const DEPRECATED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7'];
+    if (maestroVersion && DEPRECATED_MAESTRO_VERSIONS.includes(maestroVersion)) {
+      warning(
+        `Maestro version ${maestroVersion} is deprecated and will be removed soon. ` +
+        `Please upgrade to a newer version. See: https://docs.devicecloud.dev/reference/maestro-versions`
+      );
+    }
 
     const dcdVersionString = await getLatestDcdVersion(useBeta);
 
