@@ -15,7 +15,7 @@ inputs:
     description: 'The ID of the app binary previously uploaded to devicecloud.dev'
     required: false
   additional-app-files:
-    description: 'Additional app binary(s) to install before executio ($0.10 cost per upload)'
+    description: 'Additional app binary(s) to install before execution'
     required: false
   additional-app-binary-ids:
     description: 'The ID of the additional app binary(s) previously uploaded to devicecloud.dev to install before execution'

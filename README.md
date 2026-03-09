@@ -231,7 +231,7 @@ You can download logs, screenshots and videos for test results (BETA feature):
 
 # Specifying Maestro version
 
-You can specify which version of Maestro to use (ALPHA feature):
+You can specify which version of Maestro to use:
 
 ```yaml
 - uses: devicecloud-dev/device-cloud-for-maestro@v2
@@ -273,7 +273,7 @@ Specify an iOS device model to run your tests on:
 
 # Retry parameter
 
-The `retry` parameter allows you to specify the number of times to retry the run if it fails. This is the same as pressing retry in the UI, and it will deduct credits from your account. Max is 3 retries.
+The `retry` parameter allows you to specify the number of times to retry the run if it fails. This is the same as pressing retry in the UI, and retries are free. Max is 3 retries.
 
 ```yaml
 - uses: devicecloud-dev/device-cloud-for-maestro@v2
@@ -292,7 +292,7 @@ You can generate test reports in specific formats using the `report` parameter:
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
-    report: junit # Options: junit|html|allure
+    report: junit # Options: junit|html|html-detailed
 ```
 
 # Ignore SHA Check
@@ -343,6 +343,44 @@ You can specify a custom path to your Maestro config file. Defaults to looking f
     api-key: ${{ secrets.DCD_API_KEY }}
     app-file: app.apk
     config: path/to/my-maestro-config.yaml
+```
+
+# Chrome Onboarding (Android)
+
+If your tests experience browser-related crashes, you can force Maestro-based Chrome onboarding using the `maestro-chrome-onboarding` parameter. Note that this will slow your tests.
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    maestro-chrome-onboarding: true
+```
+
+See the [Chrome onboarding documentation](https://docs.devicecloud.dev/reference/chrome-onboarding) for more information.
+
+# Cold Boot (Android)
+
+By default, devices boot from a snapshot for faster startup. You can force a cold boot using the `android-no-snapshot` parameter. This is automatically enabled for API level 35 and above.
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    android-no-snapshot: true
+```
+
+# Enable Animations (Android)
+
+By default, device animations are disabled during test execution to reduce CPU load and improve test reliability. You can keep animations enabled using the `enable-animations` parameter:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: app.apk
+    enable-animations: true
 ```
 
 # Using Action Outputs
@@ -446,7 +484,7 @@ Here's a complete example showing all available options:
     
     # Device Configuration
     android-device: pixel-6  # pixel-6|pixel-6-pro|pixel-7|pixel-7-pro|generic-tablet
-    android-api-level: 34   # 29-35
+    android-api-level: 34   # 29|30|31|32|33|34|35|36
     ios-device: iphone-14   # iphone-14|iphone-14-pro|iphone-15|iphone-15-pro|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen
     ios-version: 17        # 16|17|18|26
     device-locale: en_US   # ISO-639-1_ISO-3166-1
@@ -467,8 +505,13 @@ Here's a complete example showing all available options:
       KEY2=value2
     name: Custom Run Name
     retry: 3
-    report: junit         # junit|html|allure
+    report: junit         # junit|html|html-detailed
     
+    # Android-Specific Options
+    maestro-chrome-onboarding: false  # Force Maestro-based Chrome onboarding (fixes browser crashes)
+    android-no-snapshot: false        # Force cold boot instead of snapshot (auto-enabled for API 35+)
+    enable-animations: false          # Keep device animations enabled during tests
+
     # Execution Options
     async: false
     quiet: false
@@ -477,5 +520,5 @@ Here's a complete example showing all available options:
     json-file: true            # Write test results to a JSON file
     api-url: https://api.devicecloud.dev
     config: path/to/maestro-config.yaml
-    runner-type: default   # Experimental: m1|m4|gpu1
+    runner-type: default   # Experimental: m1|m4
 ```
