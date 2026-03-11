@@ -6,23 +6,23 @@
   "main": "src/index.ts",
   "license": "MIT",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "build": "ncc build",
     "test": "pnpm run build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
-    "@octokit/rest": "^21.1.1",
+    "@actions/core": "^2.0.3",
+    "@actions/github": "^8.0.1",
+    "@octokit/rest": "^22.0.1",
     "form-data": "^4.0.5",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/node": "^20.19.25",
+    "@types/node": "^25.4.0",
     "@types/node-fetch": "^2.6.13",
-    "@vercel/ncc": "^0.36.1",
+    "@vercel/ncc": "^0.38.4",
     "typescript": "^5.9.3"
   },
   "overrides": {
