@@ -156,6 +156,7 @@ const run = async (): Promise<void> => {
       maestroChromeOnboarding,
       androidNoSnapshot,
       enableAnimations,
+      githubContext,
     } = await getParameters();
 
     const DEPRECATED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7'];
@@ -221,6 +222,12 @@ const run = async (): Promise<void> => {
           value = value.slice(1, -1);
         }
         paramsString += ` --env ${key}=${escapeShellValue(value)}`;
+      });
+    }
+
+    if (githubContext && githubContext.length > 0) {
+      githubContext.forEach((pair) => {
+        paramsString += ` --metadata ${escapeShellValue(pair)}`;
       });
     }
 
