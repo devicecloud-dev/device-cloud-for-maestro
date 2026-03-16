@@ -36,6 +36,7 @@ export type Params = {
   maestroChromeOnboarding?: boolean;
   androidNoSnapshot?: boolean;
   enableAnimations?: boolean;
+  githubContext?: string[];
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -90,6 +91,28 @@ function getInferredName(): string {
   }
 
   return github.context.sha;
+}
+
+function getGithubContextMetadata(): string[] {
+  const ctx = github.context;
+  const pr = ctx.payload.pull_request;
+
+  const rawRef = pr?.head?.ref ?? ctx.ref;
+  const branch = rawRef?.replace(/^refs\/heads\//, '') ?? '';
+
+  const pairs: string[] = [
+    `gh_sha=${ctx.sha}`,
+    `gh_run_id=${ctx.runId}`,
+    `gh_repo=${ctx.repo.owner}/${ctx.repo.repo}`,
+  ];
+
+  if (branch) pairs.push(`gh_branch=${branch}`);
+  if (pr) {
+    pairs.push(`gh_pr_number=${pr.number}`);
+    if (pr.html_url) pairs.push(`gh_pr_url=${pr.html_url}`);
+  }
+
+  return pairs;
 }
 
 function parseOrientation(
@@ -187,6 +210,10 @@ export async function getParameters(): Promise<Params> {
   });
   const useBeta = core.getInput('use-beta', { required: false }) === 'true';
 
+  const includeGithubContext =
+    core.getInput('include-github-context', { required: false }) !== 'false';
+  const githubContext = includeGithubContext ? getGithubContextMetadata() : undefined;
+
   const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
   const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
   const enableAnimations = core.getInput('enable-animations', { required: false }) === 'true';
@@ -238,5 +265,6 @@ export async function getParameters(): Promise<Params> {
     maestroChromeOnboarding,
     androidNoSnapshot,
     enableAnimations,
+    githubContext,
   };
 }

@@ -2216,7 +2216,7 @@ const Context = __importStar(__nccwpck_require__(8663));
 const Utils = __importStar(__nccwpck_require__(1365));
 // octokit + plugins
 const core_1 = __nccwpck_require__(6895);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9289);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(6495);
 const plugin_paginate_rest_1 = __nccwpck_require__(6212);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
@@ -31514,7 +31514,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, enableAnimations, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, enableAnimations, githubContext, } = yield (0, params_1.getParameters)();
         const DEPRECATED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7'];
         if (maestroVersion && DEPRECATED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             (0, core_1.warning)(`Maestro version ${maestroVersion} is deprecated and will be removed soon. ` +
@@ -31572,6 +31572,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                     value = value.slice(1, -1);
                 }
                 paramsString += ` --env ${key}=${escapeShellValue(value)}`;
+            });
+        }
+        if (githubContext && githubContext.length > 0) {
+            githubContext.forEach((pair) => {
+                paramsString += ` --metadata ${escapeShellValue(pair)}`;
             });
         }
         // Execute the test command and capture the upload ID
@@ -31729,6 +31734,26 @@ function getInferredName() {
     }
     return github.context.sha;
 }
+function getGithubContextMetadata() {
+    var _a, _b, _c;
+    const ctx = github.context;
+    const pr = ctx.payload.pull_request;
+    const rawRef = (_b = (_a = pr === null || pr === void 0 ? void 0 : pr.head) === null || _a === void 0 ? void 0 : _a.ref) !== null && _b !== void 0 ? _b : ctx.ref;
+    const branch = (_c = rawRef === null || rawRef === void 0 ? void 0 : rawRef.replace(/^refs\/heads\//, '')) !== null && _c !== void 0 ? _c : '';
+    const pairs = [
+        `gh_sha=${ctx.sha}`,
+        `gh_run_id=${ctx.runId}`,
+        `gh_repo=${ctx.repo.owner}/${ctx.repo.repo}`,
+    ];
+    if (branch)
+        pairs.push(`gh_branch=${branch}`);
+    if (pr) {
+        pairs.push(`gh_pr_number=${pr.number}`);
+        if (pr.html_url)
+            pairs.push(`gh_pr_url=${pr.html_url}`);
+    }
+    return pairs;
+}
 function parseOrientation(orientation) {
     if (!orientation)
         return undefined;
@@ -31788,6 +31813,8 @@ function getParameters() {
             required: false,
         });
         const useBeta = core.getInput('use-beta', { required: false }) === 'true';
+        const includeGithubContext = core.getInput('include-github-context', { required: false }) !== 'false';
+        const githubContext = includeGithubContext ? getGithubContextMetadata() : undefined;
         const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
         const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
         const enableAnimations = core.getInput('enable-animations', { required: false }) === 'true';
@@ -31833,6 +31860,7 @@ function getParameters() {
             maestroChromeOnboarding,
             androidNoSnapshot,
             enableAnimations,
+            githubContext,
         };
     });
 }
@@ -33965,7 +33993,7 @@ paginateRest.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 9289:
+/***/ 6495:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -33978,12 +34006,12 @@ __nccwpck_require__.d(__webpack_exports__, {
   restEndpointMethods: () => (/* binding */ restEndpointMethods)
 });
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 const VERSION = "17.0.0";
 
 //# sourceMappingURL=version.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 const Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -36277,7 +36305,7 @@ var endpoints_default = Endpoints;
 
 //# sourceMappingURL=endpoints.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 
 const endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
@@ -36403,7 +36431,7 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 //# sourceMappingURL=endpoints-to-methods.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 
 
 function restEndpointMethods(octokit) {

@@ -112,6 +112,10 @@ inputs:
   enable-animations:
     description: '[Android only] Keep device animations enabled during test execution. By default, animations are disabled to reduce CPU load and improve test reliability.'
     required: false
+  include-github-context:
+    description: 'Automatically attach GitHub/PR context (branch, SHA, PR number, PR URL, run ID, repo) to the test run as metadata. Set to "false" to opt out.'
+    required: false
+    default: 'true'
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:
