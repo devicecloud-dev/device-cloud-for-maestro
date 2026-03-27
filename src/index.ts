@@ -159,12 +159,13 @@ const run = async (): Promise<void> => {
       githubContext,
     } = await getParameters();
 
-    const DEPRECATED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7'];
-    if (maestroVersion && DEPRECATED_MAESTRO_VERSIONS.includes(maestroVersion)) {
-      warning(
-        `Maestro version ${maestroVersion} is deprecated and will be removed soon. ` +
+    const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
+    if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
+      setFailed(
+        `Maestro version ${maestroVersion} is no longer supported. ` +
         `Please upgrade to a newer version. See: https://docs.devicecloud.dev/reference/maestro-versions`
       );
+      return;
     }
 
     const dcdVersionString = await getLatestDcdVersion(useBeta);
