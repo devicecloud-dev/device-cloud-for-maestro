@@ -110,7 +110,7 @@ inputs:
     description: '[Android only] Force cold boot instead of using snapshot boot. This is automatically enabled for API 35+ but can be used to force cold boot on older API levels.'
     required: false
   disable-animations:
-    description: '[Android only] Disable device animations during test execution. This reduces CPU load and may improve test reliability on resource-constrained runners.'
+    description: 'Disable device animations during test execution. On Android, disables system animation scales. On iOS, enables Reduce Motion. Reduces CPU load and may improve test reliability.'
     required: false
   include-github-context:
     description: 'Automatically attach GitHub/PR context (branch, SHA, PR number, PR URL, run ID, repo) to the test run as metadata. Set to "false" to opt out.'
