@@ -155,7 +155,7 @@ const run = async (): Promise<void> => {
       useBeta,
       maestroChromeOnboarding,
       androidNoSnapshot,
-      enableAnimations,
+      disableAnimations,
       githubContext,
     } = await getParameters();
 
@@ -202,7 +202,7 @@ const run = async (): Promise<void> => {
       'moropo-v1-api-key': moropoV1ApiKey,
       'maestro-chrome-onboarding': maestroChromeOnboarding,
       'android-no-snapshot': androidNoSnapshot,
-      'enable-animations': enableAnimations,
+      'disable-animations': disableAnimations,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {
