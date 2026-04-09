@@ -78,10 +78,11 @@ inputs:
     description: '[Android only] The orientation of the device to run your flow against in degrees <options: 0|90|180|270>'
     required: false
   quiet:
-    description: 'Quieter console output that wont provide progress updates'
+    description: 'Quieter console output that wont provide progress updates. Defaults to true in CI.'
     required: false
+    default: 'true'
   report:
-    description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html|html-detailed>'
+    description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html|html-detailed|allure>'
     required: false
   retry:
     description: 'Number of times to retry the run if it fails (same as pressing retry in the UI, this is free)'
@@ -116,6 +117,33 @@ inputs:
     description: 'Automatically attach GitHub/PR context (branch, SHA, PR number, PR URL, run ID, repo) to the test run as metadata. Set to "false" to opt out.'
     required: false
     default: 'true'
+  app-url:
+    description: 'Signed URL to an Expo iOS build (.tar.gz). The archive is downloaded and extracted automatically. Expo signed URLs expire after ~1 hour.'
+    required: false
+  show-crosshairs:
+    description: '[Android only] Display crosshairs for screen interactions during test execution'
+    required: false
+  dry-run:
+    description: 'Simulate the run without actually triggering the upload/test, useful for debugging workflow issues'
+    required: false
+  metadata:
+    description: 'One or more key=value metadata pairs to attach to the run (one per line, e.g. MY_KEY=my_value)'
+    required: false
+  json:
+    description: 'Output results in JSON format. Note: will always provide exit code 0'
+    required: false
+  json-file-name:
+    description: 'Custom name for the JSON output file (can include relative path). Requires json-file: true.'
+    required: false
+  allure-path:
+    description: 'Custom file path for downloaded Allure report (requires report: allure, default: ./report.html)'
+    required: false
+  html-path:
+    description: 'Custom file path for downloaded HTML report (requires report: html, default: ./report.html)'
+    required: false
+  artifacts-path:
+    description: 'Custom file path for downloaded artifacts zip (default: ./artifacts.zip)'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:

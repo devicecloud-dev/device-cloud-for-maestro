@@ -31602,7 +31602,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, } = yield (0, params_1.getParameters)();
+        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, appUrl, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, jsonFileName, json, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, quiet, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, showCrosshairs, dryRun, userMetadata, allurePath, htmlPath, artifactsPath, githubContext, } = yield (0, params_1.getParameters)();
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
         if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             (0, core_1.setFailed)(`Maestro version ${maestroVersion} is no longer supported. ` +
@@ -31619,6 +31619,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'api-url': apiUrl,
             'app-binary-id': appBinaryId,
             'app-file': appFilePath,
+            'app-url': appUrl,
             async,
             config,
             'device-locale': deviceLocale,
@@ -31637,12 +31638,20 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             report,
             retry,
             'runner-type': runnerType,
+            json,
             'json-file': jsonFile,
+            'json-file-name': jsonFileName,
             debug,
+            quiet,
             'moropo-v1-api-key': moropoV1ApiKey,
             'maestro-chrome-onboarding': maestroChromeOnboarding,
             'android-no-snapshot': androidNoSnapshot,
             'disable-animations': disableAnimations,
+            'show-crosshairs': showCrosshairs,
+            'dry-run': dryRun,
+            'allure-path': allurePath,
+            'html-path': htmlPath,
+            'artifacts-path': artifactsPath,
         };
         let paramsString = Object.keys(params).reduce((acc, key) => {
             if (!params[key])
@@ -31663,6 +31672,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                 paramsString += ` --env ${key}=${escapeShellValue(value)}`;
             });
         }
+        if (userMetadata && userMetadata.length > 0) {
+            userMetadata.forEach((pair) => {
+                paramsString += ` --metadata ${escapeShellValue(pair)}`;
+            });
+        }
         if (githubContext && githubContext.length > 0) {
             githubContext.forEach((pair) => {
                 paramsString += ` --metadata ${escapeShellValue(pair)}`;
@@ -31672,7 +31686,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         let uploadId = null;
         let testOutput = '';
         try {
-            const { output, exitCode } = yield executeCommand(`npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`);
+            const { output, exitCode } = yield executeCommand(`npx --yes "${dcdVersionString}" cloud ${paramsString}`);
             testOutput = output;
             if (exitCode === 1) {
                 throw new Error('DeviceCloud CLI failed to run - check your parameters or contact support');
@@ -31891,9 +31905,6 @@ function getParameters() {
         const orientation = parseOrientation(core.getInput('orientation', { required: false }));
         const ignoreShaCheck = core.getInput('ignore-sha-check', { required: false }) === 'true';
         const report = core.getInput('report', { required: false });
-        if (report && report !== 'junit' && report !== 'html') {
-            throw new Error('Report format must be either "junit" or "html"');
-        }
         const config = core.getInput('config', { required: false });
         const runnerType = core.getInput('runner-type', { required: false });
         const jsonFile = core.getInput('json-file', { required: false }) === 'true';
@@ -31907,6 +31918,16 @@ function getParameters() {
         const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
         const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
         const disableAnimations = core.getInput('disable-animations', { required: false }) === 'true';
+        const showCrosshairs = core.getInput('show-crosshairs', { required: false }) === 'true';
+        const dryRun = core.getInput('dry-run', { required: false }) === 'true';
+        const appUrl = core.getInput('app-url', { required: false }) || undefined;
+        const userMetadata = core.getMultilineInput('metadata', { required: false });
+        const json = core.getInput('json', { required: false }) === 'true';
+        const jsonFileName = core.getInput('json-file-name', { required: false }) || undefined;
+        const allurePath = core.getInput('allure-path', { required: false }) || undefined;
+        const htmlPath = core.getInput('html-path', { required: false }) || undefined;
+        const artifactsPath = core.getInput('artifacts-path', { required: false }) || undefined;
+        const quiet = core.getInput('quiet', { required: false }) !== 'false';
         if (!(appFilePath !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
@@ -31918,6 +31939,7 @@ function getParameters() {
             apiUrl,
             apiKey,
             appFilePath,
+            appUrl,
             workspaceFolder,
             env,
             async,
@@ -31943,12 +31965,21 @@ function getParameters() {
             config,
             runnerType,
             jsonFile,
+            jsonFileName,
+            json,
             debug,
+            quiet,
             moropoV1ApiKey,
             useBeta,
             maestroChromeOnboarding,
             androidNoSnapshot,
             disableAnimations,
+            showCrosshairs,
+            dryRun,
+            userMetadata,
+            allurePath,
+            htmlPath,
+            artifactsPath,
             githubContext,
         };
     });

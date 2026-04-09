@@ -130,6 +130,7 @@ const run = async (): Promise<void> => {
       apiUrl,
       appBinaryId,
       appFilePath,
+      appUrl,
       async,
       config,
       deviceLocale,
@@ -143,6 +144,8 @@ const run = async (): Promise<void> => {
       iOSVersion,
       iosDevice,
       jsonFile,
+      jsonFileName,
+      json,
       maestroVersion,
       name,
       orientation,
@@ -151,11 +154,18 @@ const run = async (): Promise<void> => {
       workspaceFolder,
       runnerType,
       debug,
+      quiet,
       moropoV1ApiKey,
       useBeta,
       maestroChromeOnboarding,
       androidNoSnapshot,
       disableAnimations,
+      showCrosshairs,
+      dryRun,
+      userMetadata,
+      allurePath,
+      htmlPath,
+      artifactsPath,
       githubContext,
     } = await getParameters();
 
@@ -179,6 +189,7 @@ const run = async (): Promise<void> => {
       'api-url': apiUrl,
       'app-binary-id': appBinaryId,
       'app-file': appFilePath,
+      'app-url': appUrl,
       async,
       config,
       'device-locale': deviceLocale,
@@ -197,12 +208,20 @@ const run = async (): Promise<void> => {
       report,
       retry,
       'runner-type': runnerType,
+      json,
       'json-file': jsonFile,
+      'json-file-name': jsonFileName,
       debug,
+      quiet,
       'moropo-v1-api-key': moropoV1ApiKey,
       'maestro-chrome-onboarding': maestroChromeOnboarding,
       'android-no-snapshot': androidNoSnapshot,
       'disable-animations': disableAnimations,
+      'show-crosshairs': showCrosshairs,
+      'dry-run': dryRun,
+      'allure-path': allurePath,
+      'html-path': htmlPath,
+      'artifacts-path': artifactsPath,
     };
 
     let paramsString = Object.keys(params).reduce((acc, key) => {
@@ -226,6 +245,12 @@ const run = async (): Promise<void> => {
       });
     }
 
+    if (userMetadata && userMetadata.length > 0) {
+      userMetadata.forEach((pair) => {
+        paramsString += ` --metadata ${escapeShellValue(pair)}`;
+      });
+    }
+
     if (githubContext && githubContext.length > 0) {
       githubContext.forEach((pair) => {
         paramsString += ` --metadata ${escapeShellValue(pair)}`;
@@ -238,7 +263,7 @@ const run = async (): Promise<void> => {
 
     try {
       const { output, exitCode } = await executeCommand(
-        `npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`
+        `npx --yes "${dcdVersionString}" cloud ${paramsString}`
       );
       testOutput = output;
 

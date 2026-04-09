@@ -5,6 +5,7 @@ export type Params = {
   apiKey: string;
   apiUrl: string;
   appFilePath: string;
+  appUrl?: string;
   workspaceFolder: string | null;
   env?: string[];
   async?: boolean;
@@ -26,16 +27,25 @@ export type Params = {
   orientation?: 0 | 90 | 180 | 270;
   retry?: number;
   ignoreShaCheck?: boolean;
-  report?: 'junit' | 'html';
+  report?: 'junit' | 'html' | 'html-detailed' | 'allure';
   config?: string;
   runnerType?: string;
   jsonFile?: boolean;
+  jsonFileName?: string;
+  json?: boolean;
   debug?: boolean;
+  quiet?: boolean;
   moropoV1ApiKey?: string;
   useBeta?: boolean;
   maestroChromeOnboarding?: boolean;
   androidNoSnapshot?: boolean;
   disableAnimations?: boolean;
+  showCrosshairs?: boolean;
+  dryRun?: boolean;
+  userMetadata?: string[];
+  allurePath?: string;
+  htmlPath?: string;
+  artifactsPath?: string;
   githubContext?: string[];
 };
 
@@ -196,10 +206,9 @@ export async function getParameters(): Promise<Params> {
   const report = core.getInput('report', { required: false }) as
     | 'junit'
     | 'html'
+    | 'html-detailed'
+    | 'allure'
     | undefined;
-  if (report && report !== 'junit' && report !== 'html') {
-    throw new Error('Report format must be either "junit" or "html"');
-  }
 
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
@@ -217,6 +226,16 @@ export async function getParameters(): Promise<Params> {
   const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
   const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
   const disableAnimations = core.getInput('disable-animations', { required: false }) === 'true';
+  const showCrosshairs = core.getInput('show-crosshairs', { required: false }) === 'true';
+  const dryRun = core.getInput('dry-run', { required: false }) === 'true';
+  const appUrl = core.getInput('app-url', { required: false }) || undefined;
+  const userMetadata = core.getMultilineInput('metadata', { required: false });
+  const json = core.getInput('json', { required: false }) === 'true';
+  const jsonFileName = core.getInput('json-file-name', { required: false }) || undefined;
+  const allurePath = core.getInput('allure-path', { required: false }) || undefined;
+  const htmlPath = core.getInput('html-path', { required: false }) || undefined;
+  const artifactsPath = core.getInput('artifacts-path', { required: false }) || undefined;
+  const quiet = core.getInput('quiet', { required: false }) !== 'false';
 
   if (!(appFilePath !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
@@ -234,6 +253,7 @@ export async function getParameters(): Promise<Params> {
     apiUrl,
     apiKey,
     appFilePath,
+    appUrl,
     workspaceFolder,
     env,
     async,
@@ -259,12 +279,21 @@ export async function getParameters(): Promise<Params> {
     config,
     runnerType,
     jsonFile,
+    jsonFileName,
+    json,
     debug,
+    quiet,
     moropoV1ApiKey,
     useBeta,
     maestroChromeOnboarding,
     androidNoSnapshot,
     disableAnimations,
+    showCrosshairs,
+    dryRun,
+    userMetadata,
+    allurePath,
+    htmlPath,
+    artifactsPath,
     githubContext,
   };
 }
