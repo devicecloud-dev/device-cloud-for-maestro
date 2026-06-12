@@ -10,7 +10,8 @@
   },
   "scripts": {
     "build": "ncc build",
-    "test": "pnpm run build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
+    "test": "vitest run",
+    "test:gha": "pnpm run build && cp -r dist ../test-gha/gha && cp action.yml ../test-gha/gha"
   },
   "dependencies": {
     "@actions/core": "^2.0.3",
@@ -23,7 +24,8 @@
     "@types/node": "^25.4.0",
     "@types/node-fetch": "^2.6.13",
     "@vercel/ncc": "^0.38.4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.8"
   },
   "pnpm": {
     "overrides": {
