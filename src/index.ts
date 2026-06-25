@@ -122,8 +122,6 @@ const getLatestDcdVersion = async (useBeta: boolean = false): Promise<string> =>
 const run = async (): Promise<void> => {
   try {
     const {
-      additionalAppBinaryIds,
-      additionalAppFiles,
       androidApiLevel,
       androidDevice,
       apiKey,
@@ -171,8 +169,6 @@ const run = async (): Promise<void> => {
     const dcdVersionString = await getLatestDcdVersion(useBeta);
 
     const params: Record<string, any> = {
-      'additional-app-binary-ids': additionalAppBinaryIds,
-      'additional-app-files': additionalAppFiles,
       'android-api-level': androidApiLevel,
       'android-device': androidDevice,
       'api-key': apiKey,

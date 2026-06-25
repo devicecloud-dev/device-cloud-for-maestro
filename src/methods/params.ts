@@ -18,8 +18,6 @@ export type Params = {
   googlePlay: boolean;
   iosDevice: string | null;
   name?: string;
-  additionalAppBinaryIds: string[] | null;
-  additionalAppFiles: string[] | null;
   deviceLocale?: string;
   downloadArtifacts?: 'ALL' | 'FAILED';
   maestroVersion?: string;
@@ -175,12 +173,6 @@ export async function getParameters(): Promise<Params> {
   const googlePlay =
     core.getInput('google-play', { required: false }) === 'true';
 
-  const additionalAppBinaryIds = parseTags(
-    core.getInput('additional-app-binary-ids', { required: false })
-  );
-  const additionalAppFiles = parseTags(
-    core.getInput('additional-app-files', { required: false })
-  );
   const deviceLocale = core.getInput('device-locale', { required: false });
   const downloadArtifacts = parseDownloadArtifacts(
     core.getInput('download-artifacts', { required: false })
@@ -247,8 +239,6 @@ export async function getParameters(): Promise<Params> {
     iosDevice,
     excludeFlows,
     googlePlay,
-    additionalAppBinaryIds,
-    additionalAppFiles,
     deviceLocale,
     downloadArtifacts,
     maestroVersion,

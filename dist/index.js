@@ -2216,7 +2216,7 @@ const Context = __importStar(__nccwpck_require__(8663));
 const Utils = __importStar(__nccwpck_require__(1365));
 // octokit + plugins
 const core_1 = __nccwpck_require__(6895);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9289);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(6495);
 const plugin_paginate_rest_1 = __nccwpck_require__(6212);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
@@ -40647,7 +40647,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { additionalAppBinaryIds, additionalAppFiles, androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, } = yield (0, params_1.getParameters)();
+        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, } = yield (0, params_1.getParameters)();
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
         if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             (0, core_1.setFailed)(`Maestro version ${maestroVersion} is no longer supported. ` +
@@ -40656,8 +40656,6 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         const dcdVersionString = yield getLatestDcdVersion(useBeta);
         const params = {
-            'additional-app-binary-ids': additionalAppBinaryIds,
-            'additional-app-files': additionalAppFiles,
             'android-api-level': androidApiLevel,
             'android-device': androidDevice,
             'api-key': apiKey,
@@ -40928,8 +40926,6 @@ function getParameters() {
         const iosDevice = parseIOSDevice(core.getInput('ios-device', { required: false }));
         const excludeFlows = core.getInput('exclude-flows', { required: false });
         const googlePlay = core.getInput('google-play', { required: false }) === 'true';
-        const additionalAppBinaryIds = parseTags(core.getInput('additional-app-binary-ids', { required: false }));
-        const additionalAppFiles = parseTags(core.getInput('additional-app-files', { required: false }));
         const deviceLocale = core.getInput('device-locale', { required: false });
         const downloadArtifacts = parseDownloadArtifacts(core.getInput('download-artifacts', { required: false }));
         const maestroVersion = core.getInput('maestro-version', { required: false });
@@ -40976,8 +40972,6 @@ function getParameters() {
             iosDevice,
             excludeFlows,
             googlePlay,
-            additionalAppBinaryIds,
-            additionalAppFiles,
             deviceLocale,
             downloadArtifacts,
             maestroVersion,
@@ -43159,7 +43153,7 @@ paginateRest.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 9289:
+/***/ 6495:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -43172,12 +43166,12 @@ __nccwpck_require__.d(__webpack_exports__, {
   restEndpointMethods: () => (/* binding */ restEndpointMethods)
 });
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 const VERSION = "17.0.0";
 
 //# sourceMappingURL=version.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 const Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -45471,7 +45465,7 @@ var endpoints_default = Endpoints;
 
 //# sourceMappingURL=endpoints.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 
 const endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
@@ -45597,7 +45591,7 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 //# sourceMappingURL=endpoints-to-methods.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 
 
 function restEndpointMethods(octokit) {
