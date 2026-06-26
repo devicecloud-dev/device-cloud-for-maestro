@@ -228,6 +228,18 @@ const run = async (): Promise<void> => {
       });
     }
 
+    // Forward CI identity so DCD notices can target this GitHub Action (e.g.
+    // "GitHub Action < X"). The CLI reads these env vars; the spawned child
+    // inherits process.env. Provider alone still enables CI-surface notices.
+    process.env.DCD_CI_PROVIDER = 'github';
+    try {
+      process.env.DCD_CI_WRAPPER_VERSION = (
+        require('../package.json') as { version?: string }
+      ).version;
+    } catch {
+      // best-effort — version is optional
+    }
+
     // Execute the test command and capture the upload ID
     let uploadId: string | null = null;
     let testOutput = '';
