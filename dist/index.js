@@ -2216,7 +2216,7 @@ const Context = __importStar(__nccwpck_require__(8663));
 const Utils = __importStar(__nccwpck_require__(1365));
 // octokit + plugins
 const core_1 = __nccwpck_require__(6895);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9289);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(6495);
 const plugin_paginate_rest_1 = __nccwpck_require__(6212);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
@@ -40645,7 +40645,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
     }
 });
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, } = yield (0, params_1.getParameters)();
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
@@ -40718,7 +40718,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             process.env.DCD_CI_WRAPPER_VERSION = (__nccwpck_require__(8330)/* .version */ .rE);
         }
-        catch (_b) {
+        catch (_c) {
             // best-effort — version is optional
         }
         // Execute the test command and capture the upload ID
@@ -40737,6 +40737,21 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         if (!uploadId) {
             throw new Error('Failed to get upload ID from console URL');
+        }
+        // Async mode: the CLI has already submitted the run and exited (saving CI
+        // minutes). Do NOT poll for results — the DeviceCloud GitHub App reports the
+        // outcome as a "DeviceCloud" check on the commit/PR when the run completes.
+        // Just surface the upload id/console URL and exit successfully.
+        if (async) {
+            const consoleUrl = ((_b = testOutput === null || testOutput === void 0 ? void 0 : testOutput.match(/https:\/\/(?:dev\.)?console\.devicecloud\.dev\/results\?upload=[a-zA-Z0-9-]+/)) === null || _b === void 0 ? void 0 : _b[0]) || '';
+            (0, core_1.setOutput)('DEVICE_CLOUD_CONSOLE_URL', consoleUrl);
+            (0, core_1.setOutput)('DEVICE_CLOUD_UPLOAD_STATUS', 'PENDING');
+            (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', '[]');
+            console.info('Async run submitted; not waiting for results.' +
+                (consoleUrl ? ` Track progress: ${consoleUrl}` : ''));
+            console.info('Install the DeviceCloud GitHub App to get a pass/fail check on this ' +
+                'commit/PR when the run completes: https://docs.devicecloud.dev/ci-cd/github-actions');
+            return;
         }
         // Get the test status and results
         const result = yield getTestStatus(uploadId, apiKey, dcdVersionString, apiUrl);
@@ -40877,13 +40892,16 @@ function getInferredName() {
     return github.context.sha;
 }
 function getGithubContextMetadata() {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e;
     const ctx = github.context;
     const pr = ctx.payload.pull_request;
     const rawRef = (_b = (_a = pr === null || pr === void 0 ? void 0 : pr.head) === null || _a === void 0 ? void 0 : _a.ref) !== null && _b !== void 0 ? _b : ctx.ref;
     const branch = (_c = rawRef === null || rawRef === void 0 ? void 0 : rawRef.replace(/^refs\/heads\//, '')) !== null && _c !== void 0 ? _c : '';
+    // On pull_request events ctx.sha is a throwaway *merge* commit; a GitHub
+    // check (and the developer-visible commit) must use the PR's head sha.
+    const headSha = (_e = (_d = pr === null || pr === void 0 ? void 0 : pr.head) === null || _d === void 0 ? void 0 : _d.sha) !== null && _e !== void 0 ? _e : ctx.sha;
     const pairs = [
-        `gh_sha=${ctx.sha}`,
+        `gh_sha=${headSha}`,
         `gh_run_id=${ctx.runId}`,
         `gh_repo=${ctx.repo.owner}/${ctx.repo.repo}`,
     ];
@@ -43163,7 +43181,7 @@ paginateRest.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 9289:
+/***/ 6495:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -43176,12 +43194,12 @@ __nccwpck_require__.d(__webpack_exports__, {
   restEndpointMethods: () => (/* binding */ restEndpointMethods)
 });
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 const VERSION = "17.0.0";
 
 //# sourceMappingURL=version.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 const Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -45475,7 +45493,7 @@ var endpoints_default = Endpoints;
 
 //# sourceMappingURL=endpoints.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 
 const endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
@@ -45601,7 +45619,7 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 //# sourceMappingURL=endpoints-to-methods.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 
 
 function restEndpointMethods(octokit) {
