@@ -131,6 +131,31 @@ describe('getParameters', () => {
     expect(withoutCtx.githubContext).toBeUndefined();
   });
 
+  it('uses the PR head sha (not the merge sha) on pull_request events', async () => {
+    // On pull_request events github.context.sha is a throwaway merge commit; the
+    // metadata (and the GitHub check the backend posts) must use the head sha.
+    const gh = await import('@actions/github');
+    const originalPayload = gh.context.payload;
+    (gh.context as { payload: unknown }).payload = {
+      pull_request: {
+        number: 7,
+        head: { ref: 'refs/heads/feature-x', sha: 'deadbeefhead' },
+        html_url: 'https://github.com/acme/widgets/pull/7',
+      },
+    };
+    try {
+      const params = await getParameters();
+      expect(params.githubContext).toContain('gh_sha=deadbeefhead');
+      expect(params.githubContext).not.toContain('gh_sha=cafebabe');
+      expect(params.githubContext).toContain('gh_pr_number=7');
+      expect(params.githubContext).toContain(
+        'gh_pr_url=https://github.com/acme/widgets/pull/7'
+      );
+    } finally {
+      (gh.context as { payload: unknown }).payload = originalPayload;
+    }
+  });
+
   it('honours an explicit api-url and name over the defaults', async () => {
     inputs['api-url'] = 'https://api.dev.devicecloud.dev';
     inputs['name'] = 'My Custom Run';
