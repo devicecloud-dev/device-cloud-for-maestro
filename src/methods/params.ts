@@ -98,8 +98,12 @@ function getGithubContextMetadata(): string[] {
   const rawRef = pr?.head?.ref ?? ctx.ref;
   const branch = rawRef?.replace(/^refs\/heads\//, '') ?? '';
 
+  // On pull_request events ctx.sha is a throwaway *merge* commit; a GitHub
+  // check (and the developer-visible commit) must use the PR's head sha.
+  const headSha = pr?.head?.sha ?? ctx.sha;
+
   const pairs: string[] = [
-    `gh_sha=${ctx.sha}`,
+    `gh_sha=${headSha}`,
     `gh_run_id=${ctx.runId}`,
     `gh_repo=${ctx.repo.owner}/${ctx.repo.repo}`,
   ];

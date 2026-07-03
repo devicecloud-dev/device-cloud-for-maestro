@@ -266,6 +266,29 @@ const run = async (): Promise<void> => {
       throw new Error('Failed to get upload ID from console URL');
     }
 
+    // Async mode: the CLI has already submitted the run and exited (saving CI
+    // minutes). Do NOT poll for results — the DeviceCloud GitHub App reports the
+    // outcome as a "DeviceCloud" check on the commit/PR when the run completes.
+    // Just surface the upload id/console URL and exit successfully.
+    if (async) {
+      const consoleUrl =
+        testOutput?.match(
+          /https:\/\/(?:dev\.)?console\.devicecloud\.dev\/results\?upload=[a-zA-Z0-9-]+/
+        )?.[0] || '';
+      setOutput('DEVICE_CLOUD_CONSOLE_URL', consoleUrl);
+      setOutput('DEVICE_CLOUD_UPLOAD_STATUS', 'PENDING');
+      setOutput('DEVICE_CLOUD_FLOW_RESULTS', '[]');
+      console.info(
+        'Async run submitted; not waiting for results.' +
+        (consoleUrl ? ` Track progress: ${consoleUrl}` : '')
+      );
+      console.info(
+        'Install the DeviceCloud GitHub App to get a pass/fail check on this ' +
+        'commit/PR when the run completes: https://docs.devicecloud.dev/ci-cd/github-actions'
+      );
+      return;
+    }
+
     // Get the test status and results
     const result = await getTestStatus(uploadId, apiKey, dcdVersionString, apiUrl);
 
