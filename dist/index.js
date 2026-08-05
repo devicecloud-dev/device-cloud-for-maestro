@@ -48711,7 +48711,7 @@ legacyRestEndpointMethods.VERSION = VERSION;
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"rE":"2.3.0"};
+module.exports = {"rE":"2.3.1"};
 
 /***/ })
 
