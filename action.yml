@@ -110,6 +110,9 @@ inputs:
     description: 'Automatically attach GitHub/PR context (branch, SHA, PR number, PR URL, run ID, repo) to the test run as metadata. Set to "false" to opt out.'
     required: false
     default: 'true'
+  check-name:
+    description: 'Name this run''s GitHub check, e.g. "iOS" gives a check called "DeviceCloud / iOS". Use it when a PR runs more than once (iOS and Android, say) so each run gets its own check that can be required separately in branch protection. Keep it the same on every run of a given job.'
+    required: false
 
 outputs:
   DEVICE_CLOUD_CONSOLE_URL:
