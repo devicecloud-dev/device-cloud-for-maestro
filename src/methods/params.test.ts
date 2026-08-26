@@ -2,12 +2,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Drive getParameters() through mocked GitHub Actions SDKs. `inputs` is the
 // per-test action-input map; getInput/getMultilineInput read from it.
-const { inputs } = vi.hoisted(() => ({ inputs: {} as Record<string, string> }));
+const { inputs, warnings } = vi.hoisted(() => ({
+  inputs: {} as Record<string, string>,
+  warnings: [] as string[],
+}));
 
 vi.mock('@actions/core', () => ({
   getInput: (name: string) => inputs[name] ?? '',
   getMultilineInput: (name: string) =>
     inputs[name] ? inputs[name].split('\n').filter((l) => l.trim() !== '') : [],
+  warning: (message: string) => warnings.push(message),
 }));
 
 vi.mock('@actions/github', () => ({
@@ -25,6 +29,7 @@ import { getParameters } from './params';
 
 beforeEach(() => {
   for (const k of Object.keys(inputs)) delete inputs[k];
+  warnings.length = 0;
   // A valid baseline: api key + exactly one app source.
   inputs['api-key'] = 'k';
   inputs['app-file'] = 'app.apk';
@@ -129,6 +134,28 @@ describe('getParameters', () => {
     inputs['include-github-context'] = 'false';
     const withoutCtx = await getParameters();
     expect(withoutCtx.githubContext).toBeUndefined();
+  });
+
+  it('sends check-name so a PR can carry one check per job', async () => {
+    // Two runs on one commit otherwise post two identically named checks, which
+    // branch protection can only gate as a single entry.
+    const withoutName = await getParameters();
+    expect(
+      withoutName.githubContext?.some((p) => p.startsWith('gh_check_name='))
+    ).toBe(false);
+
+    inputs['check-name'] = '  iOS smoke  ';
+    const withName = await getParameters();
+    expect(withName.githubContext).toContain('gh_check_name=iOS smoke');
+  });
+
+  it('warns rather than silently dropping check-name when context is off', async () => {
+    inputs['check-name'] = 'iOS';
+    inputs['include-github-context'] = 'false';
+
+    await getParameters();
+
+    expect(warnings.join('\n')).toContain('check-name is ignored');
   });
 
   it('uses the PR head sha (not the merge sha) on pull_request events', async () => {

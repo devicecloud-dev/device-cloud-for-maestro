@@ -91,7 +91,16 @@ function getInferredName(): string {
   return github.context.sha;
 }
 
-function getGithubContextMetadata(): string[] {
+/**
+ * `checkName` names the GitHub check this run posts. It is appended to the
+ * backend's base name ("DeviceCloud / iOS"), which is what lets a PR that runs
+ * iOS and Android as two submissions carry two checks that branch protection
+ * can require separately — GitHub matches required checks by name, so two runs
+ * sharing one name collapse into a single gate that follows whichever finished
+ * last. Keep it constant for a given job; a value that varies per commit can
+ * never be a required check.
+ */
+function getGithubContextMetadata(checkName?: string): string[] {
   const ctx = github.context;
   const pr = ctx.payload.pull_request;
 
@@ -109,6 +118,7 @@ function getGithubContextMetadata(): string[] {
   ];
 
   if (branch) pairs.push(`gh_branch=${branch}`);
+  if (checkName) pairs.push(`gh_check_name=${checkName}`);
   if (pr) {
     pairs.push(`gh_pr_number=${pr.number}`);
     if (pr.html_url) pairs.push(`gh_pr_url=${pr.html_url}`);
@@ -206,9 +216,20 @@ export async function getParameters(): Promise<Params> {
   });
   const useBeta = core.getInput('use-beta', { required: false }) === 'true';
 
+  const checkName = core.getInput('check-name', { required: false }).trim();
   const includeGithubContext =
     core.getInput('include-github-context', { required: false }) !== 'false';
-  const githubContext = includeGithubContext ? getGithubContextMetadata() : undefined;
+  const githubContext = includeGithubContext
+    ? getGithubContextMetadata(checkName)
+    : undefined;
+  if (checkName && !includeGithubContext) {
+    // Without the context there is no sha to post against, so no check at all —
+    // say so rather than letting the input look like it did something.
+    core.warning(
+      'check-name is ignored because include-github-context is false: with no ' +
+        'commit context attached, DeviceCloud posts no check on this run.'
+    );
+  }
 
   const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
   const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';

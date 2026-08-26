@@ -2216,7 +2216,7 @@ const Context = __importStar(__nccwpck_require__(8663));
 const Utils = __importStar(__nccwpck_require__(1365));
 // octokit + plugins
 const core_1 = __nccwpck_require__(6895);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9289);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(6495);
 const plugin_paginate_rest_1 = __nccwpck_require__(6212);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
@@ -43947,7 +43947,16 @@ function getInferredName() {
     }
     return github.context.sha;
 }
-function getGithubContextMetadata() {
+/**
+ * `checkName` names the GitHub check this run posts. It is appended to the
+ * backend's base name ("DeviceCloud / iOS"), which is what lets a PR that runs
+ * iOS and Android as two submissions carry two checks that branch protection
+ * can require separately — GitHub matches required checks by name, so two runs
+ * sharing one name collapse into a single gate that follows whichever finished
+ * last. Keep it constant for a given job; a value that varies per commit can
+ * never be a required check.
+ */
+function getGithubContextMetadata(checkName) {
     var _a, _b, _c, _d, _e;
     const ctx = github.context;
     const pr = ctx.payload.pull_request;
@@ -43963,6 +43972,8 @@ function getGithubContextMetadata() {
     ];
     if (branch)
         pairs.push(`gh_branch=${branch}`);
+    if (checkName)
+        pairs.push(`gh_check_name=${checkName}`);
     if (pr) {
         pairs.push(`gh_pr_number=${pr.number}`);
         if (pr.html_url)
@@ -44027,8 +44038,17 @@ function getParameters() {
             required: false,
         });
         const useBeta = core.getInput('use-beta', { required: false }) === 'true';
+        const checkName = core.getInput('check-name', { required: false }).trim();
         const includeGithubContext = core.getInput('include-github-context', { required: false }) !== 'false';
-        const githubContext = includeGithubContext ? getGithubContextMetadata() : undefined;
+        const githubContext = includeGithubContext
+            ? getGithubContextMetadata(checkName)
+            : undefined;
+        if (checkName && !includeGithubContext) {
+            // Without the context there is no sha to post against, so no check at all —
+            // say so rather than letting the input look like it did something.
+            core.warning('check-name is ignored because include-github-context is false: with no ' +
+                'commit context attached, DeviceCloud posts no check on this run.');
+        }
         const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
         const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
         const disableAnimations = core.getInput('disable-animations', { required: false }) === 'true';
@@ -46245,7 +46265,7 @@ paginateRest.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 9289:
+/***/ 6495:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -46258,12 +46278,12 @@ __nccwpck_require__.d(__webpack_exports__, {
   restEndpointMethods: () => (/* binding */ restEndpointMethods)
 });
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 const VERSION = "17.0.0";
 
 //# sourceMappingURL=version.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 const Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -48557,7 +48577,7 @@ var endpoints_default = Endpoints;
 
 //# sourceMappingURL=endpoints.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 
 const endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
@@ -48683,7 +48703,7 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 //# sourceMappingURL=endpoints-to-methods.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 
 
 function restEndpointMethods(octokit) {
