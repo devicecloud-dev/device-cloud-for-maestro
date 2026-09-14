@@ -91,6 +91,9 @@ inputs:
     description: '[experimental] The type of runner to use <options: m1|m4> - note: anything other than default will incur premium pricing tiers. See https://docs.devicecloud.dev/reference/runner-type for more information'
     required: false
     default: 'default'
+  render-engine:
+    description: '[Android only] Software renderer the emulator boots with <options: lavapipe|swiftshader>. Leave unset to let DeviceCloud choose: lavapipe by default, swiftshader for apps shipping the Flutter engine.'
+    required: false
   debug:
     description: 'Enable debug mode for more verbose output'
     required: false

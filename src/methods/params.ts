@@ -27,6 +27,7 @@ export type Params = {
   report?: 'junit' | 'html';
   config?: string;
   runnerType?: string;
+  renderEngine?: string;
   jsonFile?: boolean;
   debug?: boolean;
   moropoV1ApiKey?: string;
@@ -209,6 +210,7 @@ export async function getParameters(): Promise<Params> {
 
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
+  const renderEngine = core.getInput('render-engine', { required: false });
   const jsonFile = core.getInput('json-file', { required: false }) === 'true';
   const debug = core.getInput('debug', { required: false }) === 'true';
   const moropoV1ApiKey = core.getInput('moropo-v1-api-key', {
@@ -273,6 +275,7 @@ export async function getParameters(): Promise<Params> {
     report,
     config,
     runnerType,
+    renderEngine,
     jsonFile,
     debug,
     moropoV1ApiKey,
