@@ -2216,7 +2216,7 @@ const Context = __importStar(__nccwpck_require__(8663));
 const Utils = __importStar(__nccwpck_require__(1365));
 // octokit + plugins
 const core_1 = __nccwpck_require__(6895);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(6495);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9289);
 const plugin_paginate_rest_1 = __nccwpck_require__(6212);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
@@ -43781,9 +43781,17 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         // Execute the test command and capture the upload ID
         let uploadId = null;
         let testOutput = '';
+        // The CLI's exit code is the primary verdict: it is computed by the process
+        // that actually watched the run. 0 = every test passed, 1 = CLI/infra error,
+        // 2 = the run itself failed (a failed test, or a cancelled one). This used to
+        // be discarded for anything but 1, leaving the separate `dcd status` call as
+        // the only gate — so one wrong branch in the API's status rollup turned
+        // cancelled runs green.
+        let cloudExitCode = 0;
         try {
             const { output, exitCode } = yield executeCommand(`npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`);
             testOutput = output;
+            cloudExitCode = exitCode;
             if (exitCode === 1) {
                 throw new Error('DeviceCloud CLI failed to run - check your parameters or contact support');
             }
@@ -43823,11 +43831,24 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                 status: test.status,
             }));
             (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults, null, 2));
-            if (result.status === 'PASSED') {
+            // Fail on either signal. The exit code is authoritative for a run that
+            // finished badly; the status call can only add failures the CLI could not
+            // see. A non-terminal status (PENDING/RUNNING) alongside a clean exit is a
+            // racy or degraded status call, not a failure — the CLI watched the run to
+            // completion, so warn rather than turn the build red.
+            if (cloudExitCode !== 0) {
+                (0, core_1.setFailed)(`Test run failed (dcd exited ${cloudExitCode}, status ${result.status}). ` +
+                    `Check flow results for details: ${result.consoleUrl}`);
+            }
+            else if (result.status === 'PASSED') {
                 console.info('Successfully completed test run.');
             }
-            else if (result.status === 'FAILED') {
-                (0, core_1.setFailed)(`Test run failed. Check flow results for details: ${result.consoleUrl}`);
+            else if (result.status === 'FAILED' || result.status === 'CANCELLED') {
+                (0, core_1.setFailed)(`Test run ${result.status}. Check flow results for details: ${result.consoleUrl}`);
+            }
+            else {
+                (0, core_1.warning)(`dcd reported success but the upload status is ${result.status}. ` +
+                    `Treating the run as passed: ${result.consoleUrl}`);
             }
         }
         else {
@@ -46268,7 +46289,7 @@ paginateRest.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 6495:
+/***/ 9289:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -46281,12 +46302,12 @@ __nccwpck_require__.d(__webpack_exports__, {
   restEndpointMethods: () => (/* binding */ restEndpointMethods)
 });
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 const VERSION = "17.0.0";
 
 //# sourceMappingURL=version.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 const Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -48580,7 +48601,7 @@ var endpoints_default = Endpoints;
 
 //# sourceMappingURL=endpoints.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 
 const endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
@@ -48706,7 +48727,7 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 //# sourceMappingURL=endpoints-to-methods.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 
 
 function restEndpointMethods(octokit) {
