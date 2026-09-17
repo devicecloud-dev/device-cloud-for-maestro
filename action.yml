@@ -23,6 +23,9 @@ inputs:
   async:
     description: 'Immediately return (exit code 0) from the command without waiting for the results of the run (useful for saving CI minutes)'
     required: false
+  cancel-previous:
+    description: 'Cancel the still-queued tests of the previous run of this job on the same branch or PR. Tests already running are left to finish; cancelled tests are refunded at 75%. Set check-name per job when one commit runs this action more than once, since it scopes the group'
+    required: false
   device-locale:
     description: 'Locale that will be set to a device, ISO-639-1 code and uppercase ISO-3166-1 code e.g. "de_DE" for Germany'
     required: false

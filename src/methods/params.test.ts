@@ -97,15 +97,21 @@ describe('getParameters', () => {
   it('maps boolean inputs from the string "true"', async () => {
     inputs['async'] = 'true';
     inputs['google-play'] = 'true';
+    inputs['cancel-previous'] = 'true';
     inputs['debug'] = 'true';
     let params = await getParameters();
     expect(params.async).toBe(true);
     expect(params.googlePlay).toBe(true);
+    expect(params.cancelPrevious).toBe(true);
     expect(params.debug).toBe(true);
 
     inputs['async'] = 'false';
+    inputs['cancel-previous'] = '';
     params = await getParameters();
     expect(params.async).toBe(false);
+    // Unset means off: the falsy-dropping reducer in index.ts then omits
+    // the flag entirely, so an opted-out run's command line is unchanged.
+    expect(params.cancelPrevious).toBe(false);
   });
 
   it('normalises empty device inputs to null', async () => {
