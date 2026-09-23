@@ -1,10 +1,14 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Drive getParameters() through mocked GitHub Actions SDKs. `inputs` is the
 // per-test action-input map; getInput/getMultilineInput read from it.
-const { inputs, warnings } = vi.hoisted(() => ({
+const { inputs, warnings, infos } = vi.hoisted(() => ({
   inputs: {} as Record<string, string>,
   warnings: [] as string[],
+  infos: [] as string[],
 }));
 
 vi.mock('@actions/core', () => ({
@@ -12,6 +16,7 @@ vi.mock('@actions/core', () => ({
   getMultilineInput: (name: string) =>
     inputs[name] ? inputs[name].split('\n').filter((l) => l.trim() !== '') : [],
   warning: (message: string) => warnings.push(message),
+  info: (message: string) => infos.push(message),
 }));
 
 vi.mock('@actions/github', () => ({
@@ -30,6 +35,7 @@ import { getParameters } from './params';
 beforeEach(() => {
   for (const k of Object.keys(inputs)) delete inputs[k];
   warnings.length = 0;
+  infos.length = 0;
   // A valid baseline: api key + exactly one app source.
   inputs['api-key'] = 'k';
   inputs['app-file'] = 'app.apk';
@@ -189,5 +195,35 @@ describe('getParameters', () => {
     const params = await getParameters();
     expect(params.apiUrl).toBe('https://api.dev.devicecloud.dev');
     expect(params.name).toBe('My Custom Run');
+  });
+
+  it('resolves an app-file glob to its first match and says which', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dcd-params-'));
+    try {
+      fs.writeFileSync(path.join(dir, 'app-b.apk'), '');
+      fs.writeFileSync(path.join(dir, 'app-a.apk'), '');
+
+      inputs['app-file'] = path.join(dir, 'app-a*.apk');
+      expect((await getParameters()).appFilePath).toBe(
+        path.join(dir, 'app-a.apk')
+      );
+      expect(infos.join('\n')).toContain('matched');
+      expect(warnings).toEqual([]);
+
+      inputs['app-file'] = path.join(dir, '*.apk');
+      expect((await getParameters()).appFilePath).toBe(
+        path.join(dir, 'app-a.apk')
+      );
+      expect(warnings.join('\n')).toContain('matched 2 paths');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('fails clearly when an app-file glob matches nothing', async () => {
+    inputs['app-file'] = 'no-such-dir/**/*.apk';
+    await expect(getParameters()).rejects.toThrow(
+      /No file matches the app-file pattern/
+    );
   });
 });

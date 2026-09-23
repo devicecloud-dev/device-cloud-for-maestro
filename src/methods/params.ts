@@ -1,5 +1,6 @@
 import * as github from '@actions/github';
 import * as core from '@actions/core';
+import { resolveAppFile } from './app-file';
 
 export type Params = {
   apiKey: string;
@@ -151,6 +152,25 @@ function parseDownloadArtifacts(value?: string): 'ALL' | 'FAILED' | undefined {
   return value;
 }
 
+/**
+ * app-file as the CLI should get it: a glob is resolved to its first match
+ * (see resolveAppFile), and the pick is logged so it's visible in the run.
+ */
+function getAppFilePath(appFile: string): string {
+  const { path, matches } = resolveAppFile(appFile);
+  if (matches.length > 1) {
+    const shown = matches.slice(0, 5).join(', ');
+    const more = matches.length > 5 ? `, and ${matches.length - 5} more` : '';
+    core.warning(
+      `app-file "${appFile}" matched ${matches.length} paths (${shown}${more}); ` +
+        `using the first: ${path}`
+    );
+  } else if (matches.length === 1) {
+    core.info(`app-file "${appFile}" matched ${path}`);
+  }
+  return path;
+}
+
 export async function getParameters(): Promise<Params> {
   const apiUrl =
     core.getInput('api-url', { required: false }) ||
@@ -175,7 +195,7 @@ export async function getParameters(): Promise<Params> {
     core.getInput('exclude-tags', { required: false })
   );
 
-  const appFilePath = core.getInput('app-file', { required: false });
+  const appFileInput = core.getInput('app-file', { required: false });
   const appBinaryId = core.getInput('app-binary-id', { required: false });
 
   const androidDevice = parseAndroidDevice(
@@ -237,9 +257,10 @@ export async function getParameters(): Promise<Params> {
   const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
   const disableAnimations = core.getInput('disable-animations', { required: false }) === 'true';
 
-  if (!(appFilePath !== '') !== (appBinaryId !== '')) {
+  if (!(appFileInput !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
   }
+  const appFilePath = getAppFilePath(appFileInput);
 
   const env = core.getMultilineInput('env', { required: false });
 

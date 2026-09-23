@@ -9,7 +9,7 @@ inputs:
     description: 'API URL for devicecloud.dev'
     required: false
   app-file:
-    description: 'App binary to run your flows against'
+    description: 'App binary to run your flows against: a path, or a glob pattern such as build/**/*.apk. When a pattern matches several files, the first in sorted order is used.'
     required: false
   app-binary-id:
     description: 'The ID of the app binary previously uploaded to devicecloud.dev'
