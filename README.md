@@ -87,9 +87,10 @@ without it the iOS job would cancel the Android job's queued tests. Runs from
 the same workflow run never cancel each other.
 
 Only queued tests are cancelled: anything already running on a device finishes
-and reports normally. Cancelled tests are refunded at 75%. The superseded run
-exits 0 rather than failing your build, sends no completion email or webhook,
-and its GitHub check is closed as skipped so it cannot block a PR.
+and reports normally. Cancelled tests are refunded at 75%. The superseded run's
+job passes rather than failing your build, with `DEVICE_CLOUD_UPLOAD_STATUS` set
+to `SUPERSEDED`. It sends no completion email, webhook or Slack message, and its
+GitHub check is closed as skipped so it cannot block a PR.
 
 ## Migrating from Maestro Cloud
 

@@ -24,7 +24,7 @@ inputs:
     description: 'Immediately return (exit code 0) from the command without waiting for the results of the run (useful for saving CI minutes)'
     required: false
   cancel-previous:
-    description: 'Cancel the still-queued tests of the previous run of this job on the same branch or PR. Tests already running are left to finish; cancelled tests are refunded at 75%. Set check-name per job when one commit runs this action more than once, since it scopes the group'
+    description: 'Cancel the still-queued tests of the previous run of this job on the same branch or PR. Tests already running are left to finish; cancelled tests are refunded at 75%. Set check-name per job when one commit runs this action more than once, since it scopes the group. The superseded run''s job passes, with DEVICE_CLOUD_UPLOAD_STATUS set to SUPERSEDED'
     required: false
   device-locale:
     description: 'Locale that will be set to a device, ISO-639-1 code and uppercase ISO-3166-1 code e.g. "de_DE" for Germany'
@@ -126,7 +126,7 @@ outputs:
   DEVICE_CLOUD_FLOW_RESULTS:
     description: 'JSON array containing results for each flow, including name, status, and any errors'
   DEVICE_CLOUD_UPLOAD_STATUS:
-    description: 'Status of the test run (PENDING, RUNNING, PASSED, FAILED, CANCELLED)'
+    description: 'Status of the test run: PASSED, FAILED, QUEUED, RUNNING or PENDING (always PENDING with async); SUPERSEDED when a newer run replaced it through cancel-previous; ERROR when the status could not be fetched'
   DEVICE_CLOUD_APP_BINARY_ID:
     description: 'ID of the uploaded app binary in Device Cloud'
 
