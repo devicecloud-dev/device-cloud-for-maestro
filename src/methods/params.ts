@@ -22,10 +22,10 @@ export type Params = {
   deviceLocale?: string;
   downloadArtifacts?: 'ALL' | 'FAILED';
   maestroVersion?: string;
-  orientation?: 0 | 90 | 180 | 270;
+  orientation?: 0 | 90;
   retry?: number;
   ignoreShaCheck?: boolean;
-  report?: 'junit' | 'html';
+  report?: 'junit' | 'html' | 'html-detailed';
   config?: string;
   runnerType?: string;
   renderEngine?: string;
@@ -130,18 +130,18 @@ function getGithubContextMetadata(checkName?: string): string[] {
   return pairs;
 }
 
-function parseOrientation(
-  orientation?: string
-): 0 | 90 | 180 | 270 | undefined {
+// The CLI accepts 0 and 90 only; fail here with a clear message rather than
+// letting 180/270 through to a CLI error.
+function parseOrientation(orientation?: string): 0 | 90 | undefined {
   if (!orientation) return undefined;
   const value = parseInt(orientation);
-  if ([0, 90, 180, 270].includes(value)) {
-    return value as 0 | 90 | 180 | 270;
+  if (value === 0 || value === 90) {
+    return value;
   }
-  throw new Error(
-    `Invalid orientation: ${orientation}. Must be 0, 90, 180, or 270`
-  );
+  throw new Error(`Invalid orientation: ${orientation}. Must be 0 or 90`);
 }
+
+const REPORT_FORMATS = ['junit', 'html', 'html-detailed'] as const;
 
 function parseDownloadArtifacts(value?: string): 'ALL' | 'FAILED' | undefined {
   if (!value) return undefined;
@@ -221,13 +221,16 @@ export async function getParameters(): Promise<Params> {
   const ignoreShaCheck =
     core.getInput('ignore-sha-check', { required: false }) === 'true';
 
-  const report = core.getInput('report', { required: false }) as
-    | 'junit'
-    | 'html'
-    | undefined;
-  if (report && report !== 'junit' && report !== 'html') {
-    throw new Error('Report format must be either "junit" or "html"');
+  const reportInput = core.getInput('report', { required: false });
+  if (
+    reportInput &&
+    !(REPORT_FORMATS as readonly string[]).includes(reportInput)
+  ) {
+    throw new Error(
+      'Report format must be one of "junit", "html" or "html-detailed"'
+    );
   }
+  const report = (reportInput || undefined) as Params['report'];
 
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });

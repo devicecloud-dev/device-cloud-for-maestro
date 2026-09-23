@@ -69,7 +69,7 @@ inputs:
     description: 'A custom name for your upload (useful for tagging commits etc)'
     required: false
   orientation:
-    description: '[Android only] The orientation of the device to run your flow against in degrees <options: 0|90|180|270>'
+    description: '[Android only] The orientation of the device to run your flow against in degrees <options: 0|90>'
     required: false
   quiet:
     description: 'Quieter console output without progress updates while the run is polled. Set to "false" to see them.'

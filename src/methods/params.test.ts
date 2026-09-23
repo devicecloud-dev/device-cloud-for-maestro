@@ -68,12 +68,17 @@ describe('getParameters', () => {
     expect(params.includeTags).toBeNull();
   });
 
-  it('validates orientation (accepts 0/90/180/270, throws otherwise)', async () => {
+  it('validates orientation (accepts 0/90 like the CLI, throws otherwise)', async () => {
     inputs['orientation'] = '90';
     expect((await getParameters()).orientation).toBe(90);
+    inputs['orientation'] = '0';
+    expect((await getParameters()).orientation).toBe(0);
 
     inputs['orientation'] = '45';
     await expect(getParameters()).rejects.toThrow(/Invalid orientation/);
+    // The CLI rejects these, so the action does too, with a clearer message.
+    inputs['orientation'] = '180';
+    await expect(getParameters()).rejects.toThrow(/Must be 0 or 90/);
   });
 
   it('validates download-artifacts (accepts ALL/FAILED, throws otherwise)', async () => {
@@ -84,9 +89,13 @@ describe('getParameters', () => {
     await expect(getParameters()).rejects.toThrow(/Invalid download-artifacts/);
   });
 
-  it('validates report format (accepts junit/html, throws otherwise)', async () => {
+  it('validates report format (accepts junit/html/html-detailed, throws otherwise)', async () => {
     inputs['report'] = 'junit';
     expect((await getParameters()).report).toBe('junit');
+    inputs['report'] = 'html-detailed';
+    expect((await getParameters()).report).toBe('html-detailed');
+    inputs['report'] = '';
+    expect((await getParameters()).report).toBeUndefined();
 
     inputs['report'] = 'pdf';
     await expect(getParameters()).rejects.toThrow(/Report format must be/);
