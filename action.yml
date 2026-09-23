@@ -3,7 +3,7 @@ author: 'devicecloud.dev'
 description: 'Uses devicecloud.dev to execute Maestro mobile tests'
 inputs:
   api-key:
-    description: 'API key for devicecloud.dev (find this in the console UI). You can also set the DEVICE_CLOUD_API_KEY environment variable.'
+    description: 'API key for devicecloud.dev (Settings → API Keys in the console), passed from a repository secret. Required: the DEVICE_CLOUD_API_KEY environment variable does not replace it.'
     required: true
   api-url:
     description: 'API URL for devicecloud.dev'
@@ -27,13 +27,13 @@ inputs:
     description: 'Locale that will be set to a device, ISO-639-1 code and uppercase ISO-3166-1 code e.g. "de_DE" for Germany'
     required: false
   download-artifacts:
-    description: 'Download a zip containing the logs, screenshots and videos for each result in this run. You will debited a $0.01 egress fee for each result. Use FAILED for failures only or ALL for every result. <options: ALL|FAILED>'
+    description: 'Download a zip containing the logs, screenshots and videos for each result in this run. Use FAILED for failures only or ALL for every result. <options: ALL|FAILED>'
     required: false
   env:
     description: 'One or more environment variables to inject into your flows'
     required: false
   json-file:
-    description: 'Write JSON output to a file with name <run_name>_dcd.json or <upload_id>_dcd.json if no name is provided'
+    description: 'Write the results as JSON to <upload_id>_dcd.json'
     required: false
   exclude-flows:
     description: 'Sub directories to ignore when building the flow file list'
@@ -54,10 +54,10 @@ inputs:
     description: 'Only flows which have these tags will be included in the run'
     required: false
   ios-device:
-    description: '[iOS only] iOS device to run your flow against <options: iphone-14|iphone-14-pro|iphone-15|iphone-15-pro|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen>'
+    description: '[iOS only] iOS device to run your flow against <options: iphone-14|iphone-15|iphone-16|iphone-16-plus|iphone-16-pro|iphone-16-pro-max|ipad-pro-6th-gen>'
     required: false
   ios-version:
-    description: '[iOS only] iOS version to run your flow against <options: 17|18|26>'
+    description: '[iOS only] iOS version to run your flow against <options: 17|18|26|27>'
     required: false
   maestro-version:
     description: 'Maestro version to run your flow against'
@@ -89,7 +89,7 @@ inputs:
     description: 'Specific path to your maestro config file'
     required: false
   runner-type:
-    description: '[experimental] The type of runner to use <options: m1|m4> - note: anything other than default will incur premium pricing tiers. See https://docs.devicecloud.dev/reference/runner-type for more information'
+    description: '[experimental] The type of runner to use <options: default|m4|m1|gpu1|cpu1>. m4 is iOS-only; m1, gpu1 and cpu1 are Android runners (cpu1 is the Android default). m4, m1 and gpu1 are billed at the advanced rate. See https://docs.devicecloud.dev/configuration/runner-type for more information'
     required: false
     default: 'default'
   render-engine:
@@ -105,7 +105,7 @@ inputs:
     description: '[Android only] Force Maestro-based Chrome onboarding - note: this will slow your tests but can fix browser related crashes. See https://docs.devicecloud.dev/reference/chrome-onboarding for more information.'
     required: false
   android-no-snapshot:
-    description: '[Android only] Force cold boot instead of using snapshot boot. This is automatically enabled for API 35+ but can be used to force cold boot on older API levels.'
+    description: '[Android only] Force cold boot instead of using snapshot boot. This is automatically enabled for API 34+ but can be used to force cold boot on older API levels.'
     required: false
   disable-animations:
     description: 'Disable device animations during test execution. On Android, disables system animation scales. On iOS, enables Reduce Motion. Reduces CPU load and may improve test reliability.'
@@ -122,7 +122,7 @@ outputs:
   DEVICE_CLOUD_CONSOLE_URL:
     description: 'URL to view the test results in the Device Cloud console'
   DEVICE_CLOUD_FLOW_RESULTS:
-    description: 'JSON array containing results for each flow, including name, status, and any errors'
+    description: 'JSON array with each flow''s name and status, e.g. [{"name": "...", "status": "PASSED"}]'
   DEVICE_CLOUD_UPLOAD_STATUS:
     description: 'Status of the test run (PENDING, RUNNING, PASSED, FAILED, CANCELLED)'
   DEVICE_CLOUD_APP_BINARY_ID:
