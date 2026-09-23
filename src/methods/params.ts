@@ -37,6 +37,7 @@ export type Params = {
   androidNoSnapshot?: boolean;
   disableAnimations?: boolean;
   githubContext?: string[];
+  quiet: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -264,6 +265,10 @@ export async function getParameters(): Promise<Params> {
 
   const env = core.getMultilineInput('env', { required: false });
 
+  // --quiet was always passed before this input was read, so anything but an
+  // explicit "false" keeps it on.
+  const quiet = core.getInput('quiet', { required: false }) !== 'false';
+
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
   const iOSVersion = getIOSVersion(iOSVersionString);
 
@@ -305,5 +310,6 @@ export async function getParameters(): Promise<Params> {
     androidNoSnapshot,
     disableAnimations,
     githubContext,
+    quiet,
   };
 }

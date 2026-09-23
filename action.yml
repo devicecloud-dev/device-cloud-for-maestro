@@ -72,8 +72,9 @@ inputs:
     description: '[Android only] The orientation of the device to run your flow against in degrees <options: 0|90|180|270>'
     required: false
   quiet:
-    description: 'Quieter console output that wont provide progress updates'
+    description: 'Quieter console output without progress updates while the run is polled. Set to "false" to see them.'
     required: false
+    default: 'true'
   report:
     description: 'Runs Maestro with the --format flag, this will generate a report in the specified format <options: junit|html|html-detailed>'
     required: false

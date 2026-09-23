@@ -156,6 +156,7 @@ const run = async (): Promise<void> => {
       androidNoSnapshot,
       disableAnimations,
       githubContext,
+      quiet,
     } = await getParameters();
 
     const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
@@ -255,7 +256,7 @@ const run = async (): Promise<void> => {
 
     try {
       const { output, exitCode } = await executeCommand(
-        `npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`
+        `npx --yes "${dcdVersionString}" cloud ${paramsString}${quiet ? ' --quiet' : ''}`
       );
       testOutput = output;
       cloudExitCode = exitCode;

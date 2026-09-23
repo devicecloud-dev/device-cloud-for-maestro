@@ -220,6 +220,15 @@ describe('getParameters', () => {
     }
   });
 
+  it('keeps quiet on unless it is explicitly "false"', async () => {
+    // --quiet was always passed before the input was read.
+    expect((await getParameters()).quiet).toBe(true);
+    inputs['quiet'] = 'true';
+    expect((await getParameters()).quiet).toBe(true);
+    inputs['quiet'] = 'false';
+    expect((await getParameters()).quiet).toBe(false);
+  });
+
   it('fails clearly when an app-file glob matches nothing', async () => {
     inputs['app-file'] = 'no-such-dir/**/*.apk';
     await expect(getParameters()).rejects.toThrow(
