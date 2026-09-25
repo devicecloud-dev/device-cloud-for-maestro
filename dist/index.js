@@ -43703,7 +43703,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, renderEngine, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, } = yield (0, params_1.getParameters)();
+        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, renderEngine, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, quiet, } = yield (0, params_1.getParameters)();
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
         if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             (0, core_1.setFailed)(`Maestro version ${maestroVersion} is no longer supported. ` +
@@ -43789,7 +43789,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         // cancelled runs green.
         let cloudExitCode = 0;
         try {
-            const { output, exitCode } = yield executeCommand(`npx --yes "${dcdVersionString}" cloud ${paramsString} --quiet`);
+            const { output, exitCode } = yield executeCommand(`npx --yes "${dcdVersionString}" cloud ${paramsString}${quiet ? ' --quiet' : ''}`);
             testOutput = output;
             cloudExitCode = exitCode;
             if (exitCode === 1) {
@@ -43871,6 +43871,80 @@ run();
 
 /***/ }),
 
+/***/ 8619:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveAppFile = resolveAppFile;
+const fs = __importStar(__nccwpck_require__(9896));
+const path = __importStar(__nccwpck_require__(6928));
+/** Characters that make an app-file value a glob pattern. */
+const GLOB_CHARS = /[*?[\]{}]/;
+/**
+ * Resolve the app-file input, so it can be a glob as it can with Maestro
+ * Cloud's action (e.g. `app/build/outputs/apk/release/*.apk`).
+ *
+ * A value without glob characters is returned unchanged, and so is one that
+ * exists as written, so a path that happens to contain `[` or `{` keeps
+ * working. Anything else is expanded relative to `cwd` and the first match in
+ * sorted order wins: sorting makes the pick the same on every runner, which
+ * the order the filesystem lists entries in is not. Directories match too,
+ * since an iOS simulator build is a `.app` directory.
+ *
+ * Uses Node's built-in fs.globSync (Node 22+; the action runs on node24), so
+ * no glob library is bundled.
+ */
+function resolveAppFile(appFile, cwd = process.cwd()) {
+    if (!appFile ||
+        !GLOB_CHARS.test(appFile) ||
+        fs.existsSync(path.resolve(cwd, appFile))) {
+        return { path: appFile, matches: [] };
+    }
+    const matches = fs.globSync(appFile, { cwd }).sort();
+    if (matches.length === 0) {
+        throw new Error(`No file matches the app-file pattern "${appFile}"`);
+    }
+    return { path: matches[0], matches };
+}
+
+
+/***/ }),
+
 /***/ 5745:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -43922,6 +43996,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getParameters = getParameters;
 const github = __importStar(__nccwpck_require__(6137));
 const core = __importStar(__nccwpck_require__(7153));
+const app_file_1 = __nccwpck_require__(8619);
 function getAndroidApiLevel(apiLevel) {
     return apiLevel ? +apiLevel : undefined;
 }
@@ -44003,15 +44078,18 @@ function getGithubContextMetadata(checkName) {
     }
     return pairs;
 }
+// The CLI accepts 0 and 90 only; fail here with a clear message rather than
+// letting 180/270 through to a CLI error.
 function parseOrientation(orientation) {
     if (!orientation)
         return undefined;
     const value = parseInt(orientation);
-    if ([0, 90, 180, 270].includes(value)) {
+    if (value === 0 || value === 90) {
         return value;
     }
-    throw new Error(`Invalid orientation: ${orientation}. Must be 0, 90, 180, or 270`);
+    throw new Error(`Invalid orientation: ${orientation}. Must be 0 or 90`);
 }
+const REPORT_FORMATS = ['junit', 'html', 'html-detailed'];
 function parseDownloadArtifacts(value) {
     if (!value)
         return undefined;
@@ -44019,6 +44097,23 @@ function parseDownloadArtifacts(value) {
         throw new Error(`Invalid download-artifacts value: ${value}. Must be ALL or FAILED`);
     }
     return value;
+}
+/**
+ * app-file as the CLI should get it: a glob is resolved to its first match
+ * (see resolveAppFile), and the pick is logged so it's visible in the run.
+ */
+function getAppFilePath(appFile) {
+    const { path, matches } = (0, app_file_1.resolveAppFile)(appFile);
+    if (matches.length > 1) {
+        const shown = matches.slice(0, 5).join(', ');
+        const more = matches.length > 5 ? `, and ${matches.length - 5} more` : '';
+        core.warning(`app-file "${appFile}" matched ${matches.length} paths (${shown}${more}); ` +
+            `using the first: ${path}`);
+    }
+    else if (matches.length === 1) {
+        core.info(`app-file "${appFile}" matched ${path}`);
+    }
+    return path;
 }
 function getParameters() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -44037,7 +44132,7 @@ function getParameters() {
         const iOSVersionString = core.getInput('ios-version', { required: false });
         const includeTags = parseTags(core.getInput('include-tags', { required: false }));
         const excludeTags = parseTags(core.getInput('exclude-tags', { required: false }));
-        const appFilePath = core.getInput('app-file', { required: false });
+        const appFileInput = core.getInput('app-file', { required: false });
         const appBinaryId = core.getInput('app-binary-id', { required: false });
         const androidDevice = parseAndroidDevice(core.getInput('android-device', { required: false }));
         const iosDevice = parseIOSDevice(core.getInput('ios-device', { required: false }));
@@ -44048,10 +44143,12 @@ function getParameters() {
         const maestroVersion = core.getInput('maestro-version', { required: false });
         const orientation = parseOrientation(core.getInput('orientation', { required: false }));
         const ignoreShaCheck = core.getInput('ignore-sha-check', { required: false }) === 'true';
-        const report = core.getInput('report', { required: false });
-        if (report && report !== 'junit' && report !== 'html') {
-            throw new Error('Report format must be either "junit" or "html"');
+        const reportInput = core.getInput('report', { required: false });
+        if (reportInput &&
+            !REPORT_FORMATS.includes(reportInput)) {
+            throw new Error('Report format must be one of "junit", "html" or "html-detailed"');
         }
+        const report = (reportInput || undefined);
         const config = core.getInput('config', { required: false });
         const runnerType = core.getInput('runner-type', { required: false });
         const renderEngine = core.getInput('render-engine', { required: false });
@@ -44075,10 +44172,14 @@ function getParameters() {
         const maestroChromeOnboarding = core.getInput('maestro-chrome-onboarding', { required: false }) === 'true';
         const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
         const disableAnimations = core.getInput('disable-animations', { required: false }) === 'true';
-        if (!(appFilePath !== '') !== (appBinaryId !== '')) {
+        if (!(appFileInput !== '') !== (appBinaryId !== '')) {
             throw new Error('Either app-file or app-binary-id must be used');
         }
+        const appFilePath = getAppFilePath(appFileInput);
         const env = core.getMultilineInput('env', { required: false });
+        // --quiet was always passed before this input was read, so anything but an
+        // explicit "false" keeps it on.
+        const quiet = core.getInput('quiet', { required: false }) !== 'false';
         const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
         const iOSVersion = getIOSVersion(iOSVersionString);
         const retry = parseInt(core.getInput('retry', { required: false })) || undefined;
@@ -44117,6 +44218,7 @@ function getParameters() {
             androidNoSnapshot,
             disableAnimations,
             githubContext,
+            quiet,
         };
     });
 }
@@ -48755,7 +48857,7 @@ legacyRestEndpointMethods.VERSION = VERSION;
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"rE":"2.4.0"};
+module.exports = {"rE":"2.5.0"};
 
 /***/ })
 
