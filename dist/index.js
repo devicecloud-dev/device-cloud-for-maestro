@@ -43619,6 +43619,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(7153);
 const params_1 = __nccwpck_require__(5745);
+const status_1 = __nccwpck_require__(1933);
 const child_process_1 = __nccwpck_require__(5317);
 const dcdPackageName = '@devicecloud.dev/dcd';
 const escapeShellValue = (value) => {
@@ -43703,7 +43704,7 @@ const getLatestDcdVersion = (...args_1) => __awaiter(void 0, [...args_1], void 0
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, renderEngine, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, quiet, } = yield (0, params_1.getParameters)();
+        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, cancelPrevious, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, renderEngine, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, quiet, } = yield (0, params_1.getParameters)();
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
         if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             (0, core_1.setFailed)(`Maestro version ${maestroVersion} is no longer supported. ` +
@@ -43719,6 +43720,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             'app-binary-id': appBinaryId,
             'app-file': appFilePath,
             async,
+            'cancel-previous': cancelPrevious,
             config,
             'device-locale': deviceLocale,
             'download-artifacts': downloadArtifacts,
@@ -43821,34 +43823,27 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         // Get the test status and results
         const result = yield getTestStatus(uploadId, apiKey, dcdVersionString, apiUrl);
         if (result) {
+            // Superseded (cancel-previous), passed, failed or indeterminate: see
+            // evaluateRun for how the status and the exit code combine.
+            const verdict = (0, status_1.evaluateRun)(result, cloudExitCode);
             // Set outputs based on the status results
             (0, core_1.setOutput)('DEVICE_CLOUD_CONSOLE_URL', result.consoleUrl || '');
             (0, core_1.setOutput)('DEVICE_CLOUD_APP_BINARY_ID', result.appBinaryId || '');
-            (0, core_1.setOutput)('DEVICE_CLOUD_UPLOAD_STATUS', result.status || 'PENDING');
+            (0, core_1.setOutput)('DEVICE_CLOUD_UPLOAD_STATUS', verdict.uploadStatus);
             // Format flow results to match expected structure
             const flowResults = (result.tests || []).map((test) => ({
                 name: test.name,
                 status: test.status,
             }));
             (0, core_1.setOutput)('DEVICE_CLOUD_FLOW_RESULTS', JSON.stringify(flowResults, null, 2));
-            // Fail on either signal. The exit code is authoritative for a run that
-            // finished badly; the status call can only add failures the CLI could not
-            // see. A non-terminal status (PENDING/RUNNING) alongside a clean exit is a
-            // racy or degraded status call, not a failure — the CLI watched the run to
-            // completion, so warn rather than turn the build red.
-            if (cloudExitCode !== 0) {
-                (0, core_1.setFailed)(`Test run failed (dcd exited ${cloudExitCode}, status ${result.status}). ` +
-                    `Check flow results for details: ${result.consoleUrl}`);
+            if (verdict.outcome === 'fail') {
+                (0, core_1.setFailed)(verdict.message);
             }
-            else if (result.status === 'PASSED') {
-                console.info('Successfully completed test run.');
-            }
-            else if (result.status === 'FAILED' || result.status === 'CANCELLED') {
-                (0, core_1.setFailed)(`Test run ${result.status}. Check flow results for details: ${result.consoleUrl}`);
+            else if (verdict.outcome === 'warn') {
+                (0, core_1.warning)(verdict.message);
             }
             else {
-                (0, core_1.warning)(`dcd reported success but the upload status is ${result.status}. ` +
-                    `Treating the run as passed: ${result.consoleUrl}`);
+                console.info(verdict.message);
             }
         }
         else {
@@ -44138,6 +44133,7 @@ function getParameters() {
         const iosDevice = parseIOSDevice(core.getInput('ios-device', { required: false }));
         const excludeFlows = core.getInput('exclude-flows', { required: false });
         const googlePlay = core.getInput('google-play', { required: false }) === 'true';
+        const cancelPrevious = core.getInput('cancel-previous', { required: false }) === 'true';
         const deviceLocale = core.getInput('device-locale', { required: false });
         const downloadArtifacts = parseDownloadArtifacts(core.getInput('download-artifacts', { required: false }));
         const maestroVersion = core.getInput('maestro-version', { required: false });
@@ -44200,6 +44196,7 @@ function getParameters() {
             iosDevice,
             excludeFlows,
             googlePlay,
+            cancelPrevious,
             deviceLocale,
             downloadArtifacts,
             maestroVersion,
@@ -44221,6 +44218,93 @@ function getParameters() {
             quiet,
         };
     });
+}
+
+
+/***/ }),
+
+/***/ 1933:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.supersedingConsoleUrl = supersedingConsoleUrl;
+exports.evaluateRun = evaluateRun;
+/**
+ * The console link for the run that superseded this one. The status call's
+ * consoleUrl deep-links one of THIS run's results, which the newer run does
+ * not contain, so swap the upload and drop the result (as the CLI does).
+ */
+function supersedingConsoleUrl(consoleUrl, supersededBy) {
+    if (!consoleUrl)
+        return undefined;
+    try {
+        const url = new URL(consoleUrl);
+        url.searchParams.set('upload', supersededBy);
+        url.searchParams.delete('result');
+        return url.toString();
+    }
+    catch (_a) {
+        return undefined;
+    }
+}
+/**
+ * Decide the job's outcome from the status call and the `dcd cloud` exit code.
+ *
+ * A superseded run passes, whatever else is true of it. A newer run from the
+ * same CI context cancelled its queued tests (cancel-previous), and the API
+ * rolls those up to FAILED, but the run no longer speaks for the commit.
+ * Failing the job for it would fail it for work nobody is waiting on.
+ * `dcd cloud` 5.6.0 exits 0 for such a run; an older CLI exits 2.
+ *
+ * Otherwise, fail on either signal. The exit code is authoritative for a run
+ * that finished badly; the status call can only add failures the CLI could not
+ * see. A non-terminal status (PENDING/RUNNING) alongside a clean exit is a racy
+ * or degraded status call, not a failure: the CLI watched the run to
+ * completion, so warn rather than turn the build red.
+ */
+function evaluateRun(result, cloudExitCode) {
+    const supersededBy = typeof result.supersededBy === 'string' ? result.supersededBy : '';
+    if (supersededBy) {
+        const newer = supersedingConsoleUrl(result.consoleUrl, supersededBy);
+        return {
+            outcome: 'pass',
+            uploadStatus: 'SUPERSEDED',
+            message: `Superseded by ${supersededBy}: a newer run from the same CI context ` +
+                `replaced this one, so this job does not fail.` +
+                (newer ? ` Newer run: ${newer}` : ''),
+        };
+    }
+    const uploadStatus = result.status || 'PENDING';
+    if (cloudExitCode !== 0) {
+        return {
+            outcome: 'fail',
+            uploadStatus,
+            message: `Test run failed (dcd exited ${cloudExitCode}, status ${result.status}). ` +
+                `Check flow results for details: ${result.consoleUrl}`,
+        };
+    }
+    if (result.status === 'PASSED') {
+        return {
+            outcome: 'pass',
+            uploadStatus,
+            message: 'Successfully completed test run.',
+        };
+    }
+    if (result.status === 'FAILED' || result.status === 'CANCELLED') {
+        return {
+            outcome: 'fail',
+            uploadStatus,
+            message: `Test run ${result.status}. Check flow results for details: ${result.consoleUrl}`,
+        };
+    }
+    return {
+        outcome: 'warn',
+        uploadStatus,
+        message: `dcd reported success but the upload status is ${result.status}. ` +
+            `Treating the run as passed: ${result.consoleUrl}`,
+    };
 }
 
 
