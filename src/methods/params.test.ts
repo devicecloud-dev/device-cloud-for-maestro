@@ -1,10 +1,14 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Drive getParameters() through mocked GitHub Actions SDKs. `inputs` is the
 // per-test action-input map; getInput/getMultilineInput read from it.
-const { inputs, warnings } = vi.hoisted(() => ({
+const { inputs, warnings, infos } = vi.hoisted(() => ({
   inputs: {} as Record<string, string>,
   warnings: [] as string[],
+  infos: [] as string[],
 }));
 
 vi.mock('@actions/core', () => ({
@@ -12,6 +16,7 @@ vi.mock('@actions/core', () => ({
   getMultilineInput: (name: string) =>
     inputs[name] ? inputs[name].split('\n').filter((l) => l.trim() !== '') : [],
   warning: (message: string) => warnings.push(message),
+  info: (message: string) => infos.push(message),
 }));
 
 vi.mock('@actions/github', () => ({
@@ -30,6 +35,7 @@ import { getParameters } from './params';
 beforeEach(() => {
   for (const k of Object.keys(inputs)) delete inputs[k];
   warnings.length = 0;
+  infos.length = 0;
   // A valid baseline: api key + exactly one app source.
   inputs['api-key'] = 'k';
   inputs['app-file'] = 'app.apk';
@@ -62,12 +68,17 @@ describe('getParameters', () => {
     expect(params.includeTags).toBeNull();
   });
 
-  it('validates orientation (accepts 0/90/180/270, throws otherwise)', async () => {
+  it('validates orientation (accepts 0/90 like the CLI, throws otherwise)', async () => {
     inputs['orientation'] = '90';
     expect((await getParameters()).orientation).toBe(90);
+    inputs['orientation'] = '0';
+    expect((await getParameters()).orientation).toBe(0);
 
     inputs['orientation'] = '45';
     await expect(getParameters()).rejects.toThrow(/Invalid orientation/);
+    // The CLI rejects these, so the action does too, with a clearer message.
+    inputs['orientation'] = '180';
+    await expect(getParameters()).rejects.toThrow(/Must be 0 or 90/);
   });
 
   it('validates download-artifacts (accepts ALL/FAILED, throws otherwise)', async () => {
@@ -78,9 +89,13 @@ describe('getParameters', () => {
     await expect(getParameters()).rejects.toThrow(/Invalid download-artifacts/);
   });
 
-  it('validates report format (accepts junit/html, throws otherwise)', async () => {
+  it('validates report format (accepts junit/html/html-detailed, throws otherwise)', async () => {
     inputs['report'] = 'junit';
     expect((await getParameters()).report).toBe('junit');
+    inputs['report'] = 'html-detailed';
+    expect((await getParameters()).report).toBe('html-detailed');
+    inputs['report'] = '';
+    expect((await getParameters()).report).toBeUndefined();
 
     inputs['report'] = 'pdf';
     await expect(getParameters()).rejects.toThrow(/Report format must be/);
@@ -189,5 +204,44 @@ describe('getParameters', () => {
     const params = await getParameters();
     expect(params.apiUrl).toBe('https://api.dev.devicecloud.dev');
     expect(params.name).toBe('My Custom Run');
+  });
+
+  it('resolves an app-file glob to its first match and says which', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dcd-params-'));
+    try {
+      fs.writeFileSync(path.join(dir, 'app-b.apk'), '');
+      fs.writeFileSync(path.join(dir, 'app-a.apk'), '');
+
+      inputs['app-file'] = path.join(dir, 'app-a*.apk');
+      expect((await getParameters()).appFilePath).toBe(
+        path.join(dir, 'app-a.apk')
+      );
+      expect(infos.join('\n')).toContain('matched');
+      expect(warnings).toEqual([]);
+
+      inputs['app-file'] = path.join(dir, '*.apk');
+      expect((await getParameters()).appFilePath).toBe(
+        path.join(dir, 'app-a.apk')
+      );
+      expect(warnings.join('\n')).toContain('matched 2 paths');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('keeps quiet on unless it is explicitly "false"', async () => {
+    // --quiet was always passed before the input was read.
+    expect((await getParameters()).quiet).toBe(true);
+    inputs['quiet'] = 'true';
+    expect((await getParameters()).quiet).toBe(true);
+    inputs['quiet'] = 'false';
+    expect((await getParameters()).quiet).toBe(false);
+  });
+
+  it('fails clearly when an app-file glob matches nothing', async () => {
+    inputs['app-file'] = 'no-such-dir/**/*.apk';
+    await expect(getParameters()).rejects.toThrow(
+      /No file matches the app-file pattern/
+    );
   });
 });

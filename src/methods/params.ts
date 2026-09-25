@@ -1,5 +1,6 @@
 import * as github from '@actions/github';
 import * as core from '@actions/core';
+import { resolveAppFile } from './app-file';
 
 export type Params = {
   apiKey: string;
@@ -21,10 +22,10 @@ export type Params = {
   deviceLocale?: string;
   downloadArtifacts?: 'ALL' | 'FAILED';
   maestroVersion?: string;
-  orientation?: 0 | 90 | 180 | 270;
+  orientation?: 0 | 90;
   retry?: number;
   ignoreShaCheck?: boolean;
-  report?: 'junit' | 'html';
+  report?: 'junit' | 'html' | 'html-detailed';
   config?: string;
   runnerType?: string;
   renderEngine?: string;
@@ -36,6 +37,7 @@ export type Params = {
   androidNoSnapshot?: boolean;
   disableAnimations?: boolean;
   githubContext?: string[];
+  quiet: boolean;
 };
 
 function getAndroidApiLevel(apiLevel?: string): number | undefined {
@@ -128,18 +130,18 @@ function getGithubContextMetadata(checkName?: string): string[] {
   return pairs;
 }
 
-function parseOrientation(
-  orientation?: string
-): 0 | 90 | 180 | 270 | undefined {
+// The CLI accepts 0 and 90 only; fail here with a clear message rather than
+// letting 180/270 through to a CLI error.
+function parseOrientation(orientation?: string): 0 | 90 | undefined {
   if (!orientation) return undefined;
   const value = parseInt(orientation);
-  if ([0, 90, 180, 270].includes(value)) {
-    return value as 0 | 90 | 180 | 270;
+  if (value === 0 || value === 90) {
+    return value;
   }
-  throw new Error(
-    `Invalid orientation: ${orientation}. Must be 0, 90, 180, or 270`
-  );
+  throw new Error(`Invalid orientation: ${orientation}. Must be 0 or 90`);
 }
+
+const REPORT_FORMATS = ['junit', 'html', 'html-detailed'] as const;
 
 function parseDownloadArtifacts(value?: string): 'ALL' | 'FAILED' | undefined {
   if (!value) return undefined;
@@ -149,6 +151,25 @@ function parseDownloadArtifacts(value?: string): 'ALL' | 'FAILED' | undefined {
     );
   }
   return value;
+}
+
+/**
+ * app-file as the CLI should get it: a glob is resolved to its first match
+ * (see resolveAppFile), and the pick is logged so it's visible in the run.
+ */
+function getAppFilePath(appFile: string): string {
+  const { path, matches } = resolveAppFile(appFile);
+  if (matches.length > 1) {
+    const shown = matches.slice(0, 5).join(', ');
+    const more = matches.length > 5 ? `, and ${matches.length - 5} more` : '';
+    core.warning(
+      `app-file "${appFile}" matched ${matches.length} paths (${shown}${more}); ` +
+        `using the first: ${path}`
+    );
+  } else if (matches.length === 1) {
+    core.info(`app-file "${appFile}" matched ${path}`);
+  }
+  return path;
 }
 
 export async function getParameters(): Promise<Params> {
@@ -175,7 +196,7 @@ export async function getParameters(): Promise<Params> {
     core.getInput('exclude-tags', { required: false })
   );
 
-  const appFilePath = core.getInput('app-file', { required: false });
+  const appFileInput = core.getInput('app-file', { required: false });
   const appBinaryId = core.getInput('app-binary-id', { required: false });
 
   const androidDevice = parseAndroidDevice(
@@ -200,13 +221,16 @@ export async function getParameters(): Promise<Params> {
   const ignoreShaCheck =
     core.getInput('ignore-sha-check', { required: false }) === 'true';
 
-  const report = core.getInput('report', { required: false }) as
-    | 'junit'
-    | 'html'
-    | undefined;
-  if (report && report !== 'junit' && report !== 'html') {
-    throw new Error('Report format must be either "junit" or "html"');
+  const reportInput = core.getInput('report', { required: false });
+  if (
+    reportInput &&
+    !(REPORT_FORMATS as readonly string[]).includes(reportInput)
+  ) {
+    throw new Error(
+      'Report format must be one of "junit", "html" or "html-detailed"'
+    );
   }
+  const report = (reportInput || undefined) as Params['report'];
 
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
@@ -237,11 +261,16 @@ export async function getParameters(): Promise<Params> {
   const androidNoSnapshot = core.getInput('android-no-snapshot', { required: false }) === 'true';
   const disableAnimations = core.getInput('disable-animations', { required: false }) === 'true';
 
-  if (!(appFilePath !== '') !== (appBinaryId !== '')) {
+  if (!(appFileInput !== '') !== (appBinaryId !== '')) {
     throw new Error('Either app-file or app-binary-id must be used');
   }
+  const appFilePath = getAppFilePath(appFileInput);
 
   const env = core.getMultilineInput('env', { required: false });
+
+  // --quiet was always passed before this input was read, so anything but an
+  // explicit "false" keeps it on.
+  const quiet = core.getInput('quiet', { required: false }) !== 'false';
 
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
   const iOSVersion = getIOSVersion(iOSVersionString);
@@ -284,5 +313,6 @@ export async function getParameters(): Promise<Params> {
     androidNoSnapshot,
     disableAnimations,
     githubContext,
+    quiet,
   };
 }

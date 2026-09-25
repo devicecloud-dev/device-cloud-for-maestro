@@ -48,7 +48,7 @@ run a `check-name` so they don't both post a check with the same name:
 - uses: devicecloud-dev/device-cloud-for-maestro@v2
   with:
     api-key: ${{ secrets.DCD_API_KEY }}
-    app-file: build/app.ipa
+    app-file: build/MyApp.app.zip
     async: true
     check-name: iOS        # -> a check called "DeviceCloud / iOS"
 
@@ -79,4 +79,4 @@ Replace the `uses` line in your workflow:
 - uses: devicecloud-dev/device-cloud-for-maestro@v2
 ```
 
-All inputs are compatible. Update your API key secret from `MCLOUD_API_KEY` to `DCD_API_KEY` (or any name you choose).
+Most inputs carry over unchanged. These Maestro Cloud inputs are not supported and are ignored (GitHub warns about them as unexpected inputs): `project-id`, `mapping-file`, `timeout`, `branch` (the branch is attached automatically), and `device-model` / `device-os`, for which use `ios-device` / `ios-version` or `android-device` / `android-api-level`. Update your API key secret from `MCLOUD_API_KEY` to `DCD_API_KEY` (or any name you choose).
