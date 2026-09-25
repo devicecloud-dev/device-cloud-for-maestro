@@ -1,5 +1,6 @@
 import { setFailed, setOutput, warning } from '@actions/core';
 import { getParameters } from './methods/params';
+import { evaluateRun, StatusResponse, TestResult } from './methods/status';
 import { spawn } from 'child_process';
 
 const dcdPackageName = '@devicecloud.dev/dcd';
@@ -8,18 +9,6 @@ const escapeShellValue = (value: string): string => {
   // Escape special characters that could cause shell interpretation issues
   return value.replace(/(["\\'$`!\s\[\]{}()&|;<>*?#^~])/g, '\\$1');
 };
-
-interface TestResult {
-  name: string;
-  status: 'PASSED' | 'FAILED' | 'CANCELLED' | 'PENDING' | 'RUNNING';
-}
-
-interface StatusResponse {
-  status: 'PASSED' | 'FAILED' | 'CANCELLED' | 'PENDING' | 'RUNNING';
-  tests: TestResult[];
-  consoleUrl?: string;
-  appBinaryId?: string;
-}
 
 const executeCommand = (
   command: string,
@@ -129,6 +118,7 @@ const run = async (): Promise<void> => {
       appBinaryId,
       appFilePath,
       async,
+      cancelPrevious,
       config,
       deviceLocale,
       downloadArtifacts,
@@ -178,6 +168,7 @@ const run = async (): Promise<void> => {
       'app-binary-id': appBinaryId,
       'app-file': appFilePath,
       async,
+      'cancel-previous': cancelPrevious,
       config,
       'device-locale': deviceLocale,
       'download-artifacts': downloadArtifacts,
@@ -304,10 +295,14 @@ const run = async (): Promise<void> => {
     const result = await getTestStatus(uploadId, apiKey, dcdVersionString, apiUrl);
 
     if (result) {
+      // Superseded (cancel-previous), passed, failed or indeterminate: see
+      // evaluateRun for how the status and the exit code combine.
+      const verdict = evaluateRun(result, cloudExitCode);
+
       // Set outputs based on the status results
       setOutput('DEVICE_CLOUD_CONSOLE_URL', result.consoleUrl || '');
       setOutput('DEVICE_CLOUD_APP_BINARY_ID', result.appBinaryId || '');
-      setOutput('DEVICE_CLOUD_UPLOAD_STATUS', result.status || 'PENDING');
+      setOutput('DEVICE_CLOUD_UPLOAD_STATUS', verdict.uploadStatus);
 
       // Format flow results to match expected structure
       const flowResults = (result.tests || []).map((test: TestResult) => ({
@@ -319,27 +314,12 @@ const run = async (): Promise<void> => {
         JSON.stringify(flowResults, null, 2)
       );
 
-      // Fail on either signal. The exit code is authoritative for a run that
-      // finished badly; the status call can only add failures the CLI could not
-      // see. A non-terminal status (PENDING/RUNNING) alongside a clean exit is a
-      // racy or degraded status call, not a failure — the CLI watched the run to
-      // completion, so warn rather than turn the build red.
-      if (cloudExitCode !== 0) {
-        setFailed(
-          `Test run failed (dcd exited ${cloudExitCode}, status ${result.status}). ` +
-            `Check flow results for details: ${result.consoleUrl}`
-        );
-      } else if (result.status === 'PASSED') {
-        console.info('Successfully completed test run.');
-      } else if (result.status === 'FAILED' || result.status === 'CANCELLED') {
-        setFailed(
-          `Test run ${result.status}. Check flow results for details: ${result.consoleUrl}`
-        );
+      if (verdict.outcome === 'fail') {
+        setFailed(verdict.message);
+      } else if (verdict.outcome === 'warn') {
+        warning(verdict.message);
       } else {
-        warning(
-          `dcd reported success but the upload status is ${result.status}. ` +
-            `Treating the run as passed: ${result.consoleUrl}`
-        );
+        console.info(verdict.message);
       }
     } else {
       setOutput('DEVICE_CLOUD_UPLOAD_STATUS', 'ERROR');

@@ -67,6 +67,31 @@ the failing iOS run should have held. Keep the value fixed for a given job:
 GitHub matches required checks by name, so a name that changes per commit can
 never be required.
 
+## Cancelling superseded runs
+
+Push twice in quick succession and the first run's queued tests are dead
+weight. `cancel-previous` cancels them when the newer run is submitted:
+
+```yaml
+- uses: devicecloud-dev/device-cloud-for-maestro@v2
+  with:
+    api-key: ${{ secrets.DCD_API_KEY }}
+    app-file: build/app.apk
+    cancel-previous: true
+    check-name: Android
+```
+
+The previous run is matched on repo + branch (or PR number) + `check-name`, so
+set `check-name` per job whenever one commit runs this action more than once —
+without it the iOS job would cancel the Android job's queued tests. Runs from
+the same workflow run never cancel each other.
+
+Only queued tests are cancelled: anything already running on a device finishes
+and reports normally. Cancelled tests are refunded at 75%. The superseded run's
+job passes rather than failing your build, with `DEVICE_CLOUD_UPLOAD_STATUS` set
+to `SUPERSEDED`. It sends no completion email, webhook or Slack message, and its
+GitHub check is closed as skipped so it cannot block a PR.
+
 ## Migrating from Maestro Cloud
 
 Replace the `uses` line in your workflow:

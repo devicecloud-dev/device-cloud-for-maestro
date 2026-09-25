@@ -17,6 +17,7 @@ export type Params = {
   androidDevice: string | null;
   excludeFlows: string;
   googlePlay: boolean;
+  cancelPrevious: boolean;
   iosDevice: string | null;
   name?: string;
   deviceLocale?: string;
@@ -208,6 +209,8 @@ export async function getParameters(): Promise<Params> {
   const excludeFlows = core.getInput('exclude-flows', { required: false });
   const googlePlay =
     core.getInput('google-play', { required: false }) === 'true';
+  const cancelPrevious =
+    core.getInput('cancel-previous', { required: false }) === 'true';
 
   const deviceLocale = core.getInput('device-locale', { required: false });
   const downloadArtifacts = parseDownloadArtifacts(
@@ -295,6 +298,7 @@ export async function getParameters(): Promise<Params> {
     iosDevice,
     excludeFlows,
     googlePlay,
+    cancelPrevious,
     deviceLocale,
     downloadArtifacts,
     maestroVersion,
