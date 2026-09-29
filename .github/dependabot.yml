@@ -1,0 +1,40 @@
+version: 2
+updates:
+  # npm / pnpm dependencies.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    commit-message:
+      # Conventional Commit prefixes so the squashed PR title passes the
+      # PR-title lint and release-please reads it. Runtime dependencies
+      # (@actions/core, @actions/github) are bundled into dist/index.js, so a
+      # bump changes what consumers run: `deps` cuts a patch release. Dev
+      # dependencies only affect the build and tests: `chore` is a hidden
+      # changelog section and cuts no release.
+      prefix: deps
+      prefix-development: chore
+    groups:
+      # One PR for all non-major updates. Majors come as individual PRs.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions used by our workflows.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    # Let a new action release age a week before we pick it up.
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+    groups:
+      # One PR for ALL action bumps (including majors). Actions are low-risk
+      # and quick to eyeball together; no need for a PR each.
+      actions:
+        patterns:
+          - "*"
