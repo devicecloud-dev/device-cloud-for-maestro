@@ -44826,6 +44826,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(7153);
 const params_1 = __nccwpck_require__(5745);
 const status_1 = __nccwpck_require__(1933);
+const wrapper_version_1 = __nccwpck_require__(5397);
 const child_process_1 = __nccwpck_require__(5317);
 const dcdPackageName = '@devicecloud.dev/dcd';
 const escapeShellValue = (value) => {
@@ -44980,11 +44981,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         // "GitHub Action < X"). The CLI reads these env vars; the spawned child
         // inherits process.env. Provider alone still enables CI-surface notices.
         process.env.DCD_CI_PROVIDER = 'github';
-        try {
-            process.env.DCD_CI_WRAPPER_VERSION = (__nccwpck_require__(8330)/* .version */ .rE);
-        }
-        catch (_c) {
-            // best-effort — version is optional
+        // Read at runtime, never bundled: see readWrapperVersion. Best-effort, as
+        // the version is optional.
+        const wrapperVersion = (0, wrapper_version_1.readWrapperVersion)(__dirname);
+        if (wrapperVersion) {
+            process.env.DCD_CI_WRAPPER_VERSION = wrapperVersion;
         }
         // Execute the test command and capture the upload ID
         let uploadId = null;
@@ -45511,6 +45512,80 @@ function evaluateRun(result, cloudExitCode) {
         message: `dcd reported success but the upload status is ${result.status}. ` +
             `Treating the run as passed: ${result.consoleUrl}`,
     };
+}
+
+
+/***/ }),
+
+/***/ 5397:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.readWrapperVersion = readWrapperVersion;
+const fs = __importStar(__nccwpck_require__(9896));
+const path = __importStar(__nccwpck_require__(6928));
+/**
+ * The action's own version, read from package.json at RUNTIME.
+ *
+ * `entryDir` is the directory of the running entry file: `dist/` in the
+ * published action and `src/` from source. Both sit one level below
+ * package.json, so `<entryDir>/../package.json` is the repo root's either way.
+ *
+ * This is deliberately not `require('../package.json')` or a JSON import. ncc
+ * inlines those into dist/index.js, so dist then carried whatever version was
+ * current when it was last built. v2.5.0 shipped reporting 2.4.0 that way, and
+ * a release-please release PR (which bumps only package.json) would either tag
+ * a dist holding the previous version or force a dist rebuild into the release
+ * commit. The path is built from a parameter so ncc's asset relocator can't
+ * resolve it at build time and copy package.json into dist/.
+ *
+ * Best-effort: returns undefined rather than throwing.
+ */
+function readWrapperVersion(entryDir) {
+    try {
+        const manifest = JSON.parse(fs.readFileSync(path.join(entryDir, '..', 'package.json'), 'utf8'));
+        return typeof manifest.version === 'string' && manifest.version
+            ? manifest.version
+            : undefined;
+    }
+    catch (_a) {
+        return undefined;
+    }
 }
 
 
@@ -50140,14 +50215,6 @@ legacyRestEndpointMethods.VERSION = VERSION;
 
 //# sourceMappingURL=index.js.map
 
-
-/***/ }),
-
-/***/ 8330:
-/***/ ((module) => {
-
-"use strict";
-module.exports = {"rE":"2.6.0"};
 
 /***/ })
 

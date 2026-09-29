@@ -1,0 +1,43 @@
+name: PR Title
+
+# Enforces Conventional Commits on the PR *title*. Because PRs are squash-merged
+# with the title as the commit subject, this is what release-please parses to
+# compute version bumps and the changelog — so the allowed types below must stay
+# in sync with `changelog-sections` in release-please-config.json.
+#
+# Uses pull_request_target so it also runs (and reports a required status check)
+# on PRs from forks. It only reads the title — no untrusted code is checked out.
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Keep in lockstep with release-please-config.json changelog-sections.
+          types: |
+            feat
+            fix
+            perf
+            deps
+            revert
+            refactor
+            docs
+            chore
+            test
+            ci
+            build
+            style

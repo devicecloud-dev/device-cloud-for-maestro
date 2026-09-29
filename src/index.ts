@@ -1,6 +1,7 @@
 import { setFailed, setOutput, warning } from '@actions/core';
 import { getParameters } from './methods/params';
 import { evaluateRun, StatusResponse, TestResult } from './methods/status';
+import { readWrapperVersion } from './methods/wrapper-version';
 import { spawn } from 'child_process';
 
 const dcdPackageName = '@devicecloud.dev/dcd';
@@ -226,12 +227,11 @@ const run = async (): Promise<void> => {
     // "GitHub Action < X"). The CLI reads these env vars; the spawned child
     // inherits process.env. Provider alone still enables CI-surface notices.
     process.env.DCD_CI_PROVIDER = 'github';
-    try {
-      process.env.DCD_CI_WRAPPER_VERSION = (
-        require('../package.json') as { version?: string }
-      ).version;
-    } catch {
-      // best-effort — version is optional
+    // Read at runtime, never bundled: see readWrapperVersion. Best-effort, as
+    // the version is optional.
+    const wrapperVersion = readWrapperVersion(__dirname);
+    if (wrapperVersion) {
+      process.env.DCD_CI_WRAPPER_VERSION = wrapperVersion;
     }
 
     // Execute the test command and capture the upload ID

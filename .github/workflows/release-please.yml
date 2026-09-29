@@ -1,0 +1,214 @@
+name: Release
+
+# Every push to `main` runs these jobs in order:
+#
+#   1. build           Rebuild dist/index.js from source and, if it changed,
+#                      commit it to main as `build: rebuild dist`. Consumers run
+#                      the committed dist, so it has to land before any release.
+#   2. release-please  Open or update the Release PR. Merging that PR creates
+#                      the vX.Y.Z tag and GitHub Release, whose body is the
+#                      freshly-rendered changelog section.
+#   3. verify-dist     Only after a release: check out the new tag, rebuild,
+#                      and fail if the committed dist differs from its source.
+#   4. move-major-tag  Only after verify-dist passes: force-move the floating
+#                      major tag (v2) that consumers pin to the release commit.
+#
+# Downstream steps are chained as `needs:` jobs rather than separate workflows
+# on `release: published`, because releases created with GITHUB_TOKEN don't
+# trigger other workflows. The old `release: created` workflow also derived the
+# major tag by string-slicing the tag name, which is how a stray `v` tag got
+# created from `v.2.3.1`. This one takes the major from release-please.
+#
+# dist/ no longer embeds the package.json version (src/methods/wrapper-version.ts
+# reads it at runtime). The Release PR bumps only package.json, CHANGELOG.md and
+# the manifest, so it can't conflict with a dist rebuild or tag a stale version.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Serialise runs so a dist commit and a release never race each other. Runs
+# that are still running are never cancelled. GitHub keeps at most one pending
+# run per group, so a burst of pushes can replace a pending run with a newer
+# one. That is harmless: the newer run builds a tree that contains the older
+# push, and release-please finds merged Release PRs whichever push it runs for.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  build:
+    name: Rebuild dist
+    # workflow_dispatch can be started from any branch. This job pushes HEAD to
+    # main, so on any other ref it could fast-forward main to that branch.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      # Push the dist commit. main's ruleset only blocks deletion and
+      # force-pushes, so a direct push is allowed.
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6.1.0
+        with:
+          run_install: false
+
+      # Node 24 matches action.yml's `runs.using: node24`.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+          cache: 'pnpm'
+          cache-dependency-path: './pnpm-lock.yaml'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      # Pushed with GITHUB_TOKEN, which does not trigger workflows. That is
+      # what we want: the dist commit must not start another run of this
+      # workflow (or CI) and loop.
+      - name: Commit and push dist if it changed
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- dist/)" ]; then
+            echo "dist/ is up to date."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist/index.js
+          # Conventional and in a hidden changelog section, so it never cuts
+          # a release or shows up in release notes.
+          git commit -m "build: rebuild dist"
+
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+
+          # The push was rejected. If main has moved on since this run's
+          # commit, skip rather than rebase: the newer push has a run of its
+          # own queued behind this one (see `concurrency`), and that run
+          # rebuilds dist from a tree that already includes this commit.
+          git fetch --no-tags origin main
+          if [ "$(git rev-parse FETCH_HEAD)" != "$GITHUB_SHA" ]; then
+            echo "::warning::main moved on from ${GITHUB_SHA} while this run was building. Skipping the dist commit; the run for the newer push rebuilds dist."
+            exit 0
+          fi
+          echo "::error::Pushing the dist commit to main failed, and main has not moved."
+          exit 1
+
+  release-please:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    # Empty until the automation GitHub App secrets are configured (the same
+    # App as dcd-cli's release-please). We use an App token (not GITHUB_TOKEN)
+    # so the Release PR triggers CI and the PR-title check. PRs opened by
+    # GITHUB_TOKEN do not. Falls back to GITHUB_TOKEN until the App is set up,
+    # so this is safe to merge before then.
+    env:
+      BOT_APP_ID: ${{ secrets.BOT_APP_ID }}
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+      major: ${{ steps.release.outputs.major }}
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        if: env.BOT_APP_ID != ''
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+      - uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          target-branch: main
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # A tag whose dist doesn't match its source means a Release PR was merged
+  # before the build job had pushed the dist for the last source change. The
+  # fix is another release once the dist commit is on main; move-major-tag
+  # stays skipped meanwhile, so v2 consumers keep the previous release.
+  verify-dist:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6.1.0
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+          cache: 'pnpm'
+          cache-dependency-path: './pnpm-lock.yaml'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - name: The tagged dist must match its source
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain -- dist/)" ]; then
+            echo "::error::dist/ at ${TAG} does not match a fresh build of its own source. v2 was not moved."
+            git status --porcelain -- dist/
+            git diff --stat -- dist/
+            exit 1
+          fi
+          echo "dist/ at ${TAG} matches its source."
+
+  move-major-tag:
+    needs: [release-please, verify-dist]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      # Force-push the floating major tag.
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.sha }}
+
+      - name: Point the major tag at the release commit
+        env:
+          MAJOR: ${{ needs.release-please.outputs.major }}
+          SHA: ${{ needs.release-please.outputs.sha }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$MAJOR" =~ ^[0-9]+$ ]]; then
+            echo "::error::release-please reported major '${MAJOR}' for ${TAG}; refusing to move a tag named v${MAJOR}."
+            exit 1
+          fi
+
+          git fetch --no-tags origin "refs/tags/${TAG}:refs/tags/${TAG}"
+          if [ "$(git rev-parse "${TAG}^{commit}")" != "$SHA" ]; then
+            echo "::error::${TAG} does not point at the release commit ${SHA}."
+            exit 1
+          fi
+
+          echo "Moving v${MAJOR} to ${SHA} (${TAG})"
+          git tag -f "v${MAJOR}" "$SHA"
+          git push --force origin "refs/tags/v${MAJOR}"
