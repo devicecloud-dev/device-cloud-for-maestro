@@ -105,3 +105,14 @@ Replace the `uses` line in your workflow:
 ```
 
 Most inputs carry over unchanged. These Maestro Cloud inputs are not supported and are ignored (GitHub warns about them as unexpected inputs): `project-id`, `mapping-file`, `timeout`, `branch` (the branch is attached automatically), and `device-model` / `device-os`, for which use `ios-device` / `ios-version` or `android-device` / `android-api-level`. Update your API key secret from `MCLOUD_API_KEY` to `DCD_API_KEY` (or any name you choose).
+
+## Releasing
+
+Releases are cut by [release-please](https://github.com/googleapis/release-please).
+
+1. PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `deps:`, ...). The `PR Title` check enforces this. PRs are squash-merged, so the title becomes the commit that release-please reads. `feat` cuts a minor release; `fix`, `perf`, `deps`, `revert` and `refactor` cut a patch; `docs`, `chore`, `test`, `ci`, `build` and `style` cut nothing. A breaking change (`feat!:`) cuts a new major, which `@v2` users don't get.
+2. You don't need to commit `dist/`. After every push to `main`, the Release workflow rebuilds `dist/index.js` and commits it as `build: rebuild dist` if it changed.
+3. release-please keeps a `chore(main): release X.Y.Z` PR open that bumps `package.json` and `CHANGELOG.md`. Before you merge it, let the Release workflow for the latest push to `main` finish, so the dist commit has landed.
+4. Merging it creates the `vX.Y.Z` tag and GitHub Release. The workflow then rebuilds dist at the tag and checks it matches the committed one, and only then moves the `v2` tag to the release.
+
+Never move or delete a release tag by hand. If `verify-dist` fails, `v2` stays on the previous release; cut another release once the dist commit is on `main`.
