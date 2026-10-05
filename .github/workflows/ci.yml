@@ -27,3 +27,21 @@ jobs:
 
       - name: Run unit tests
         run: pnpm test
+
+      # Dependabot PRs only run this workflow, so the build has to be checked
+      # here too. Without it the TypeScript 7 bump merged green and only broke
+      # in the Release workflow's dist rebuild on main.
+      - name: Build dist
+        run: pnpm build
+
+      # ncc exits 0 when it can't resolve an import. It bundles a stub that
+      # throws "Cannot find module" when the action runs instead. That is what
+      # the ESM-only @actions/core 3 and @actions/github 9 did to a CommonJS
+      # build: a 36 kB dist/index.js that failed on its first line.
+      - name: Check every import was bundled
+        run: |
+          if grep -q webpackMissingModule dist/index.js; then
+            echo "::error::dist/index.js has imports ncc could not resolve:"
+            grep -o "Cannot find module '[^']*'" dist/index.js | sort -u
+            exit 1
+          fi
