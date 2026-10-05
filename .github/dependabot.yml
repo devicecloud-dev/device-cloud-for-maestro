@@ -21,6 +21,13 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # ncc (0.45, the latest) compiles through TypeScript's JS compiler API,
+      # which TypeScript 7, the native Go port, does not ship: `pnpm build`
+      # dies with "Cannot read properties of undefined (reading 'fileExists')".
+      # Remove this once an ncc release supports TypeScript 7.
+      - dependency-name: typescript
+        versions: [">= 7"]
 
   # GitHub Actions used by our workflows.
   - package-ecosystem: github-actions
