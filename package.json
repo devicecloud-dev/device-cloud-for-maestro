@@ -18,8 +18,8 @@
     "@actions/github": "^9.1.1"
   },
   "devDependencies": {
-    "@types/node": "^26.6.3",
-    "@vercel/ncc": "^0.38.4",
+    "@types/node": "^26.6.4",
+    "@vercel/ncc": "^0.45.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   },
