@@ -46,11 +46,28 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-      # Push the dist commit. main's ruleset only blocks deletion and
-      # force-pushes, so a direct push is allowed.
+      # Kept for the GITHUB_TOKEN fallback. With PUSH_APP_* set, the dist
+      # commit is pushed by devicecloud-push-bot, which main's rulesets let
+      # bypass the pull-request and required-check rules.
       contents: write
+    env:
+      PUSH_APP_ID: ${{ secrets.PUSH_APP_ID }}
     steps:
+      - name: Mint push token
+        # devicecloud-push-bot (contents: write only) is a bypass actor on this repo's
+        # rulesets, so it can push to the protected branch; GitHub Actions can't be one.
+        # Falls back to GITHUB_TOKEN while PUSH_APP_ID / PUSH_APP_PRIVATE_KEY are unset.
+        id: push-token
+        if: env.PUSH_APP_ID != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.PUSH_APP_ID }}
+          private-key: ${{ secrets.PUSH_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@v7
+        with:
+          token: ${{ steps.push-token.outputs.token || github.token }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -68,9 +85,9 @@ jobs:
 
       - run: pnpm build
 
-      # Pushed with GITHUB_TOKEN, which does not trigger workflows. That is
-      # what we want: the dist commit must not start another run of this
-      # workflow (or CI) and loop.
+      # The dist commit must not start another run of this workflow (or CI)
+      # and loop. GITHUB_TOKEN pushes never trigger workflows; app-token pushes
+      # do, so the commit carries [skip ci].
       - name: Commit and push dist if it changed
         run: |
           set -euo pipefail
@@ -84,7 +101,7 @@ jobs:
           git add dist/index.js
           # Conventional and in a hidden changelog section, so it never cuts
           # a release or shows up in release notes.
-          git commit -m "build: rebuild dist"
+          git commit -m "build: rebuild dist" -m "[skip ci]"
 
           if git push origin HEAD:main; then
             exit 0
