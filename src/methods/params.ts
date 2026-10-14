@@ -29,6 +29,7 @@ export type Params = {
   report?: 'junit' | 'html' | 'html-detailed';
   config?: string;
   runnerType?: string;
+  priority?: 'low' | 'normal' | 'high';
   renderEngine?: string;
   jsonFile?: boolean;
   debug?: boolean;
@@ -154,6 +155,17 @@ function parseDownloadArtifacts(value?: string): 'ALL' | 'FAILED' | undefined {
   return value;
 }
 
+const PRIORITIES = ['low', 'normal', 'high'] as const;
+
+// Unset means the CLI default (normal) and no --priority flag at all.
+function parsePriority(value?: string): Params['priority'] {
+  if (!value) return undefined;
+  if (!(PRIORITIES as readonly string[]).includes(value)) {
+    throw new Error(`Invalid priority: ${value}. Must be low, normal or high`);
+  }
+  return value as Params['priority'];
+}
+
 /**
  * app-file as the CLI should get it: a glob is resolved to its first match
  * (see resolveAppFile), and the pick is logged so it's visible in the run.
@@ -237,6 +249,9 @@ export async function getParameters(): Promise<Params> {
 
   const config = core.getInput('config', { required: false });
   const runnerType = core.getInput('runner-type', { required: false });
+  const priority = parsePriority(
+    core.getInput('priority', { required: false })
+  );
   const renderEngine = core.getInput('render-engine', { required: false });
   const jsonFile = core.getInput('json-file', { required: false }) === 'true';
   const debug = core.getInput('debug', { required: false }) === 'true';
@@ -308,6 +323,7 @@ export async function getParameters(): Promise<Params> {
     report,
     config,
     runnerType,
+    priority,
     renderEngine,
     jsonFile,
     debug,
