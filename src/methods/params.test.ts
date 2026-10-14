@@ -101,6 +101,20 @@ describe('getParameters', () => {
     await expect(getParameters()).rejects.toThrow(/Report format must be/);
   });
 
+  it('validates priority (accepts low/normal/high, unset when empty, throws otherwise)', async () => {
+    // Unset leaves the field undefined, so index.ts passes no --priority flag.
+    expect((await getParameters()).priority).toBeUndefined();
+    inputs['priority'] = 'high';
+    expect((await getParameters()).priority).toBe('high');
+    inputs['priority'] = 'low';
+    expect((await getParameters()).priority).toBe('low');
+    inputs['priority'] = 'normal';
+    expect((await getParameters()).priority).toBe('normal');
+
+    inputs['priority'] = 'urgent';
+    await expect(getParameters()).rejects.toThrow(/Invalid priority/);
+  });
+
   it('coerces android-api-level and ios-version to numbers', async () => {
     inputs['android-api-level'] = '34';
     inputs['ios-version'] = '17';

@@ -50323,6 +50323,16 @@ function parseDownloadArtifacts(value) {
     }
     return value;
 }
+const PRIORITIES = ['low', 'normal', 'high'];
+// Unset means the CLI default (normal) and no --priority flag at all.
+function parsePriority(value) {
+    if (!value)
+        return undefined;
+    if (!PRIORITIES.includes(value)) {
+        throw new Error(`Invalid priority: ${value}. Must be low, normal or high`);
+    }
+    return value;
+}
 /**
  * app-file as the CLI should get it: a glob is resolved to its first match
  * (see resolveAppFile), and the pick is logged so it's visible in the run.
@@ -50377,6 +50387,7 @@ function getParameters() {
         const report = (reportInput || undefined);
         const config = getInput('config', { required: false });
         const runnerType = getInput('runner-type', { required: false });
+        const priority = parsePriority(getInput('priority', { required: false }));
         const renderEngine = getInput('render-engine', { required: false });
         const jsonFile = getInput('json-file', { required: false }) === 'true';
         const debug = getInput('debug', { required: false }) === 'true';
@@ -50436,6 +50447,7 @@ function getParameters() {
             report,
             config,
             runnerType,
+            priority,
             renderEngine,
             jsonFile,
             debug,
@@ -50657,7 +50669,7 @@ const getLatestDcdVersion = (...args_1) => src_awaiter(void 0, [...args_1], void
 const run = () => src_awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, cancelPrevious, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, renderEngine, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, quiet, } = yield getParameters();
+        const { androidApiLevel, androidDevice, apiKey, apiUrl, appBinaryId, appFilePath, async, cancelPrevious, config, deviceLocale, downloadArtifacts, env, excludeFlows, excludeTags, googlePlay, ignoreShaCheck, includeTags, iOSVersion, iosDevice, jsonFile, maestroVersion, name, orientation, report, retry, workspaceFolder, runnerType, priority, renderEngine, debug, moropoV1ApiKey, useBeta, maestroChromeOnboarding, androidNoSnapshot, disableAnimations, githubContext, quiet, } = yield getParameters();
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
         if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             setFailed(`Maestro version ${maestroVersion} is no longer supported. ` +
@@ -50691,6 +50703,7 @@ const run = () => src_awaiter(void 0, void 0, void 0, function* () {
             report,
             retry,
             'runner-type': runnerType,
+            priority,
             'render-engine': renderEngine,
             'json-file': jsonFile,
             debug,

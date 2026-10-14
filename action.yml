@@ -95,6 +95,9 @@ inputs:
     description: '[experimental] The type of runner to use <options: default|m4|m1|gpu1|cpu1>. m4 is iOS-only; m1, gpu1 and cpu1 are Android runners (cpu1 is the Android default). m4, m1 and gpu1 are billed at the advanced rate. See https://docs.devicecloud.dev/configuration/runner-type for more information'
     required: false
     default: 'default'
+  priority:
+    description: 'Run priority within your organization <options: low|normal|high>. Reorders only your own queued runs across your concurrency pool, for every flow in this run; it never moves them ahead of other customers. Runs queued longer than 6 hours are promoted first, so low runs are never starved. Retries keep the same priority. Leave unset for normal.'
+    required: false
   render-engine:
     description: '[Android only] Software renderer the emulator boots with <options: lavapipe|swiftshader>. Leave unset to let DeviceCloud choose: lavapipe by default, swiftshader for apps shipping the Flutter engine.'
     required: false
