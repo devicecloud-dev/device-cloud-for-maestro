@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.6.1...v2.7.0) (2026-10-16)
+
+
+### Features
+
+* add --priority flag for within-org run ordering ([#67](https://github.com/devicecloud-dev/device-cloud-for-maestro/issues/67)) ([ef56be9](https://github.com/devicecloud-dev/device-cloud-for-maestro/commit/ef56be9378e8e11f61c5301b24cf6fef30eb417e))
+
 ## [2.6.1](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.6.0...v2.6.1) (2026-10-07)
 
 
