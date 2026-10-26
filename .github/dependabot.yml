@@ -21,6 +21,10 @@ updates:
         update-types:
           - minor
           - patch
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
     ignore:
       # ncc (0.45, the latest) compiles through TypeScript's JS compiler API,
       # which TypeScript 7, the native Go port, does not ship: `pnpm build`
