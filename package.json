@@ -26,7 +26,8 @@
   "pnpm": {
     "overrides": {
       "undici": ">=8.10.2",
-      "postcss": ">=8.5.18"
+      "postcss": ">=8.5.18",
+      "vite": ">=8.1.6"
     }
   },
   "packageManager": "pnpm@10.29.3"
