@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.7.1](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.7.0...v2.7.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** bump undici override to &gt;=8.12.2 ([#76](https://github.com/devicecloud-dev/device-cloud-for-maestro/issues/76)) ([10ca4ad](https://github.com/devicecloud-dev/device-cloud-for-maestro/commit/10ca4adea6d429c8ba235675b8ff36f5f407500a))
+* **deps:** override vite to &gt;=8.1.6 to clear security alerts ([#74](https://github.com/devicecloud-dev/device-cloud-for-maestro/issues/74)) ([df754a6](https://github.com/devicecloud-dev/device-cloud-for-maestro/commit/df754a6d07ed02cbe34fae422b9f12660c99575a))
+
 ## [2.7.0](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.6.1...v2.7.0) (2026-10-16)
 
 
