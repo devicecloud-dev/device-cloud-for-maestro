@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.7.1...v2.7.2) (2026-11-02)
+
+
+### Miscellaneous
+
+* release 2.7.2 ([#80](https://github.com/devicecloud-dev/device-cloud-for-maestro/issues/80)) ([94dc972](https://github.com/devicecloud-dev/device-cloud-for-maestro/commit/94dc97236a08c7d776814627d0dbc12c5b4ff25e))
+
 ## [2.7.1](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.7.0...v2.7.1) (2026-10-27)
 
 
