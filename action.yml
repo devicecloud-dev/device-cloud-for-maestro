@@ -57,7 +57,7 @@ inputs:
     description: 'Only flows which have these tags will be included in the run'
     required: false
   ios-device:
-    description: '[iOS only] iOS device to run your flow against <options: iphone-14|iphone-16|iphone-16-pro|iphone-16-pro-max|iphone-17|iphone-air|iphone-18-pro|iphone-18-pro-max|iphone-duo|ipad-pro-m5-11|ipad-pro-m5-13>'
+    description: '[iOS only] iOS device to run your flow against <options: iphone-14|iphone-16|iphone-16-pro|iphone-17|iphone-air|iphone-18-pro|iphone-18-pro-max|iphone-duo|ipad-pro-m5-11|ipad-pro-m5-13>'
     required: false
   ios-version:
     description: '[iOS only] iOS version to run your flow against <options: 17|18|26|27>'
@@ -92,7 +92,7 @@ inputs:
     description: 'Specific path to your maestro config file'
     required: false
   runner-type:
-    description: '[experimental] The type of runner to use <options: default|m4|m1|gpu1|cpu1>. m4 is iOS-only; m1, gpu1 and cpu1 are Android runners (cpu1 is the Android default). m4, m1 and gpu1 are billed at the advanced rate. See https://docs.devicecloud.dev/configuration/runner-type for more information'
+    description: '[experimental] The type of runner to use <options: default|m4|m1|cpu1>. m4 is iOS-only; m1 and cpu1 are Android runners (cpu1 is the Android default). m4 and m1 are billed at the advanced rate. gpu1 was removed on 9 November 2026: runs that still pass it run on cpu1, billed at the standard Android rate. See https://docs.devicecloud.dev/configuration/runner-type for more information'
     required: false
     default: 'default'
   priority:
