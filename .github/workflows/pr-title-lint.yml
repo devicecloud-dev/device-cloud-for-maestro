@@ -5,10 +5,14 @@ name: PR Title
 # compute version bumps and the changelog — so the allowed types below must stay
 # in sync with `changelog-sections` in release-please-config.json.
 #
-# Uses pull_request_target so it also runs (and reports a required status check)
-# on PRs from forks. It only reads the title — no untrusted code is checked out.
+# Runs on pull_request, which also fires for PRs from forks. Fork runs get a
+# read-only token and no secrets, and that is all a title check needs: it reads
+# the title from the event payload and checks out no code. It used to run on
+# pull_request_target, which GitHub blocks by default in public repositories
+# from 2026-12-02, so don't switch back. A first-time contributor's fork PR waits
+# for a maintainer to approve the run before this check reports.
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - edited
