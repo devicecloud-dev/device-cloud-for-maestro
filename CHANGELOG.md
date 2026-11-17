@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.3](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.7.2...v2.7.3) (2026-11-17)
+
+
+### Bug Fixes
+
+* update doc links; change default check name doc ([#86](https://github.com/devicecloud-dev/device-cloud-for-maestro/issues/86)) ([a74a2c2](https://github.com/devicecloud-dev/device-cloud-for-maestro/commit/a74a2c235fd82b90b45fa7ee360b9244bbe7bbe5))
+
 ## [2.7.2](https://github.com/devicecloud-dev/device-cloud-for-maestro/compare/v2.7.1...v2.7.2) (2026-11-02)
 
 
