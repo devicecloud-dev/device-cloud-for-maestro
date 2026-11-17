@@ -155,7 +155,7 @@ const run = async (): Promise<void> => {
     if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
       setFailed(
         `Maestro version ${maestroVersion} is no longer supported. ` +
-        `Please upgrade to a newer version. See: https://docs.devicecloud.dev/reference/maestro-versions`
+        `Please upgrade to a newer version. See: https://docs.devicecloud.dev/configuration/maestro-versions`
       );
       return;
     }

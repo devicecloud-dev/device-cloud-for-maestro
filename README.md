@@ -33,7 +33,7 @@ the run and exit immediately:
 
 To still gate your PR on the result, install the **DeviceCloud GitHub App** and
 connect it to your org in DeviceCloud → Settings → Integrations. DeviceCloud then
-posts a `DeviceCloud / Mobile E2E` check on the commit/PR — `in progress` while
+posts a `DeviceCloud` check on the commit/PR — `in progress` while
 the suite runs, then pass/fail when it completes — with a "Re-run failed tests"
 button. Make it a required status check in branch protection to block merges on
 failures. No `permissions: checks: write` is needed in your workflow; the App
