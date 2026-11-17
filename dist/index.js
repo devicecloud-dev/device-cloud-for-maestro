@@ -54710,7 +54710,7 @@ const run = () => src_awaiter(void 0, void 0, void 0, function* () {
         const REMOVED_MAESTRO_VERSIONS = ['1.39.2', '1.39.7', '2.0.3'];
         if (maestroVersion && REMOVED_MAESTRO_VERSIONS.includes(maestroVersion)) {
             setFailed(`Maestro version ${maestroVersion} is no longer supported. ` +
-                `Please upgrade to a newer version. See: https://docs.devicecloud.dev/reference/maestro-versions`);
+                `Please upgrade to a newer version. See: https://docs.devicecloud.dev/configuration/maestro-versions`);
             return;
         }
         const dcdVersionString = yield getLatestDcdVersion(useBeta);
